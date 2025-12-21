@@ -14,6 +14,7 @@ function Character<T extends z.ZodTypeAny>(imageType: T) {
 		thumbnail: imageType.optional(),
 		picture: imageType,
 		description: z.string(),
+		short_description: z.string().optional(),
 		type: z.literal('Character').default('Character')
 	});
 }
