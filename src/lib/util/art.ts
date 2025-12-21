@@ -2,7 +2,11 @@ import type { z } from 'zod';
 
 import type { FullCharacter } from '../server/models/Character.ts';
 import type { Artist as ZArtist } from '../server/models/Artist.ts';
-import type { Picture as ZPicture, Image as ZImage, Source as ZSource } from '../server/models/image.ts';
+import type {
+	Picture as ZPicture,
+	Image as ZImage,
+	Source as ZSource
+} from '../server/models/image.ts';
 import type { FullGallery, FullArtPiece } from '../server/models/Gallery.ts';
 
 export type Gallery = z.infer<typeof FullGallery>;

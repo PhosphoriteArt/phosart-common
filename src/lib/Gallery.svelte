@@ -6,10 +6,10 @@
 
 	interface Props {
 		pieces: ArtPiece[];
-		browser: boolean,
-		PieceComponent: Component<{piece: ArtPiece, onselect: () => void}>,
+		browser: boolean;
+		PieceComponent: Component<{ piece: ArtPiece; onselect: () => void }>;
 		// Displayed when the screen is small
-		FullCardComponent: Component<{piece: ArtPiece, onselect: () => void}> | null,
+		FullCardComponent: Component<{ piece: ArtPiece; onselect: () => void }> | null;
 	}
 
 	let { pieces, browser, PieceComponent, FullCardComponent }: Props = $props();
@@ -21,7 +21,11 @@
 	}
 </script>
 
-<div class="row" class:notsmall={!!FullCardComponent} style="margin-bottom: 24px; align-items: stretch;">
+<div
+	class="row"
+	class:notsmall={!!FullCardComponent}
+	style="margin-bottom: 24px; align-items: stretch;"
+>
 	{#each pieces as piece, i (piece.slug)}
 		<PieceComponent {piece} onselect={() => onSelect(i)} />
 	{/each}
@@ -29,9 +33,9 @@
 	<ModalGallery {pieces} {browser} bind:selected />
 </div>
 {#if FullCardComponent}
-<div class="small">
-	<FullGallery {pieces} {browser} addNav={false} CardComponent={FullCardComponent} />
-</div>
+	<div class="small">
+		<FullGallery {pieces} {browser} addNav={false} CardComponent={FullCardComponent} />
+	</div>
 {/if}
 
 <style>

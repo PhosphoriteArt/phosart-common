@@ -1,17 +1,13 @@
-export {
-  no4K,
-  normalizeArtist,
-  onlyHighRes
-} from './art.ts';
+export { no4K, normalizeArtist, onlyHighRes } from './art.ts';
 export type {
-  ArtPiece,
-  Artist,
-  Character,
-  Gallery,
-  Image,
-  NormalizedArtist,
-  Picture,
-  Source
+	ArtPiece,
+	Artist,
+	Character,
+	Gallery,
+	Image,
+	NormalizedArtist,
+	Picture,
+	Source
 } from './art.ts';
 export { useArtist, useArtists, useArtistsContext } from './artistcontext.ts';
 export { useCharacterContext, useCharacters } from './charactercontext.ts';

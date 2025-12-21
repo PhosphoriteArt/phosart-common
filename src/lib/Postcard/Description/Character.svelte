@@ -16,7 +16,9 @@
 	let handle = $derived(typeof character === 'string' ? character : character.name);
 	let characterObj = $derived(characters.find((c) => c.name === handle));
 	let artist = $derived(typeof character === 'string' ? null : character.from);
-	let artistObj: Artist | null = $derived(artist ? (artists.find((a) => a.handle === artist) ?? null) : null);
+	let artistObj: Artist | null = $derived(
+		artist ? (artists.find((a) => a.handle === artist) ?? null) : null
+	);
 	let artistUrl = $derived(artistObj?.links ? Object.values(artistObj.links)[0] : null);
 
 	let name = $derived(characterObj?.name ?? handle);

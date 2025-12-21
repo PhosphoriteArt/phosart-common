@@ -12,7 +12,7 @@ function filterOne(piece: ArtPiece, by: Filterable) {
 		}
 	} else if (by.type === 'Artist') {
 		const artists = normalizeArtist(piece.artist);
-		return artists.some((artist) => artist.name.toLowerCase() === by.name.toLowerCase())
+		return artists.some((artist) => artist.name.toLowerCase() === by.name.toLowerCase());
 	} else if (by.type === 'Character') {
 		if (
 			!piece.characters

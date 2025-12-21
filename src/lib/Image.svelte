@@ -26,7 +26,7 @@
 	let showBackground = $state(true);
 	let loadingMeta = $state(true);
 	// svelte-ignore state_referenced_locally
-		let lastSrc = $state(picture.fallback.src);
+	let lastSrc = $state(picture.fallback.src);
 
 	const highRes = isHighRes();
 	let src = $derived(highRes ? onlyHighRes(picture) : no4K(picture));

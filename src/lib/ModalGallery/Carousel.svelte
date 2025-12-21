@@ -19,7 +19,8 @@
 		if (carouselScroller && selected !== null && browser) {
 			const width = browser
 				? parseInt(
-						getComputedStyle(document.documentElement).getPropertyValue('--carousel-height') || '100'
+						getComputedStyle(document.documentElement).getPropertyValue('--carousel-height') ||
+							'100'
 					)
 				: 100;
 			carouselScroller.scroll({

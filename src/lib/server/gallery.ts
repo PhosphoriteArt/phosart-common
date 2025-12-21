@@ -4,7 +4,13 @@ import * as path from 'node:path';
 import * as fs from 'node:fs/promises';
 import { z } from 'zod';
 import { Logger } from 'tslog';
-import { BaseArtPiece, BaseGallery, FullArtPiece, FullGallery, RawGallery } from './models/Gallery.ts';
+import {
+	BaseArtPiece,
+	BaseGallery,
+	FullArtPiece,
+	FullGallery,
+	RawGallery
+} from './models/Gallery.ts';
 import { $ART } from './directories.ts';
 import { processImage, processVideo } from './imageprocess.ts';
 import { getCache, hash, relativeFile } from './util.ts';

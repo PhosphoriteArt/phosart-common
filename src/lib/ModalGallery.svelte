@@ -35,10 +35,15 @@
 		pieces: ArtPiece[];
 		selected?: number | null;
 		hashUpdateReady?: boolean;
-		browser: boolean
+		browser: boolean;
 	}
 
-	let { pieces, selected = $bindable(null), hashUpdateReady = $bindable(false), browser }: Props = $props();
+	let {
+		pieces,
+		selected = $bindable(null),
+		hashUpdateReady = $bindable(false),
+		browser
+	}: Props = $props();
 
 	const isGalleryOpen = $state(useIsModelGalleryOpen());
 

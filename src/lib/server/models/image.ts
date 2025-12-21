@@ -15,5 +15,5 @@ export const Image = z.object({
 
 export const Picture = z.object({
 	full: Image,
-	thumbnail: Image,
+	thumbnail: Image
 });
