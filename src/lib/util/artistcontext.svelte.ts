@@ -5,6 +5,9 @@ const key = Symbol();
 
 export function useArtistsContext(artists: Artist[]) {
 	setContext(key, artists);
+	$effect(() => {
+		setContext(key, artists);
+	});
 }
 
 export function useArtists(): Artist[] {

@@ -2,8 +2,8 @@
 	import '@fortawesome/fontawesome-free/css/all.min.css';
 
 	import type { Artist, ArtPiece } from '../../util/art.ts';
-	import { useArtists } from '../../util/artistcontext.ts';
-	import { useCharacters } from '../../util/charactercontext.ts';
+	import { useArtists } from '../../util/artistcontext.svelte.ts';
+	import { useCharacters } from '../../util/charactercontext.svelte.ts';
 
 	interface Props {
 		character: ArtPiece['characters'][number];

@@ -42,6 +42,10 @@ export function normalizeArtist(
 	as: ArtPiece['artist'],
 	artists?: Artist[] | Artist
 ): Array<NormalizedArtist> {
+	if (!as) {
+		return [];
+	}
+	
 	if (!Array.isArray(as)) {
 		return [normalizeSingleArtist(as, artists)];
 	}

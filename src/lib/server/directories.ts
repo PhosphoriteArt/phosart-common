@@ -4,6 +4,12 @@ import * as fs from 'node:fs';
 function findRoot() {
 	let cur = dirname(process.env.PROJECT_ROOT ?? process.argv[1]);
 	while (cur.length > 1) {
+		console.warn("XXX", cur)
+		if (cur.includes("node_modules")) {
+			cur = join(cur, "..")
+			continue
+		}
+
 		try {
 			// If package.json parses correctly...
 			JSON.parse(fs.readFileSync(join(cur, 'package.json'), { encoding: 'utf-8' }));
@@ -16,5 +22,5 @@ function findRoot() {
 }
 
 export const $ROOT = join(findRoot(), 'src');
-export const $ART = join($ROOT, 'art');
+export const $DATA = join($ROOT, 'data');
 export const $PUBLIC = join($ROOT, '..', 'static', '_');

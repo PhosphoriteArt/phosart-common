@@ -11,7 +11,7 @@ import {
 	FullGallery,
 	RawGallery
 } from './models/Gallery.ts';
-import { $ART } from './directories.ts';
+import { $DATA } from './directories.ts';
 import { processImage, processVideo } from './imageprocess.ts';
 import { getCache, hash, relativeFile } from './util.ts';
 const GalleryLogger = new Logger({ minLevel: 2 });
@@ -105,12 +105,12 @@ export async function galleries() {
 	if (cached) {
 		return cached;
 	}
-	const allGalleries = await glob('./**/*.gallery', { cwd: $ART });
+	const allGalleries = await glob('./**/*.gallery', { cwd: $DATA });
 	const documents = (
 		await Promise.all(
 			allGalleries.map((fn) =>
 				fs
-					.readFile(path.join($ART, fn), { encoding: 'utf-8' })
+					.readFile(path.join($DATA, fn), { encoding: 'utf-8' })
 					.then((text) => ({ filename: fn, text }))
 			)
 		)

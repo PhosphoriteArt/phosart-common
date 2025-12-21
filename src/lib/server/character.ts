@@ -1,5 +1,5 @@
 import { glob } from 'glob';
-import { $ART } from './directories.ts';
+import { $DATA } from './directories.ts';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import * as yaml from 'yaml';
@@ -46,20 +46,41 @@ export async function characters() {
 	if (cached) {
 		return cached;
 	}
-	const allGalleries = await glob('./**/*.character', { cwd: $ART });
+	const allCharacters = await glob('./**/*.character', { cwd: $DATA });
+	const charactersData = await glob('./**/characters.yaml', { cwd: $DATA });
+	let idx = 0;
 	const documents = (
 		await Promise.all(
-			allGalleries.map((fn) =>
+			allCharacters.map((fn) =>
 				fs
-					.readFile(path.join($ART, fn), { encoding: 'utf-8' })
+					.readFile(path.join($DATA, fn), { encoding: 'utf-8' })
 					.then((text) => ({ filename: fn, text }))
 			)
 		)
 	)
 		.map(({ filename, text }) => ({ filename, obj: yaml.parse(text) }))
-		.map(({ filename, obj }, idx) => {
-			return { filename, obj: RawCharacter.parse({ ...obj, index: idx }) };
+		.map(({ filename, obj }) => {
+			return { filename, obj: RawCharacter.parse({ ...obj, index: idx++ }) };
 		})
+		.concat(
+			(
+				await Promise.all(
+					charactersData.map((fn) =>
+						fs
+							.readFile(path.join($DATA, fn), { encoding: 'utf-8' })
+							.then((text) => ({ filename: fn, text }))
+					)
+				)
+			)
+				.map(({ filename, text }) => ({ filename, obj: yaml.parse(text) }))
+				.flatMap(({ filename, obj }, idx) => {
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					return (obj as any[]).map((obj) => {
+						const ch = RawCharacter.parse({ ...obj, index: idx++ });
+						return { filename: `${filename}#${ch.index}`, obj: ch };
+					});
+				})
+		)
 		.reduce<Record<string, z.infer<typeof RawCharacter>>>(
 			(rec, { filename, obj }) => ({ ...rec, [filename]: obj }),
 			{}

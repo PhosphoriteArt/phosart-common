@@ -16,7 +16,7 @@ function ArtPiece<T extends z.ZodTypeAny>(imageType: T) {
 	return z.object({
 		id: z.string().optional(),
 		name: z.string(),
-		artist: z.union([Artist, z.array(Artist)]),
+		artist: z.union([Artist, z.array(Artist)]).optional(),
 		date: z.coerce.date(),
 		image: imageType,
 		characters: z

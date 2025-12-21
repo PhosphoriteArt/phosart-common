@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { normalizeArtist, type ArtPiece } from '../util/art.ts';
-	import { useArtists } from '../util/artistcontext.ts';
+	import { useArtists } from '../util/artistcontext.svelte.ts';
 	import ArtistLink from './ArtistLink.svelte';
 
 	const allArtists = useArtists();

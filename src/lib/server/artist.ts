@@ -1,5 +1,5 @@
 import { glob } from 'glob';
-import { $ART } from './directories.ts';
+import { $DATA } from './directories.ts';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import * as yaml from 'yaml';
@@ -14,12 +14,12 @@ export async function artists() {
 	if (cached) {
 		return cached;
 	}
-	const allArtists = await glob('./**/*.artist', { cwd: $ART });
+	const allArtists = await glob('./**/*.artist', { cwd: $DATA });
 	const documents = (
 		await Promise.all(
 			allArtists.map((fn) =>
 				fs
-					.readFile(path.join($ART, fn), { encoding: 'utf-8' })
+					.readFile(path.join($DATA, fn), { encoding: 'utf-8' })
 					.then((text) => ({ filename: fn, text }))
 			)
 		)

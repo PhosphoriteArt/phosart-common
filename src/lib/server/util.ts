@@ -1,7 +1,7 @@
 import * as fs from 'node:fs/promises';
 import * as crypto from 'node:crypto';
 import path from 'node:path';
-import { $ART } from './directories.ts';
+import { $DATA } from './directories.ts';
 import type { GalleryCache } from './gallery.ts';
 import type { CharacterCache } from './character.ts';
 import type { ArtistCache } from './artist.ts';
@@ -16,7 +16,7 @@ export function hash(object: object) {
 }
 
 export function relativeFile(startFile: string, nextFile: string) {
-	const out = path.join($ART, path.dirname(startFile), nextFile);
+	const out = path.join($DATA, path.dirname(startFile), nextFile);
 	return out;
 }
 

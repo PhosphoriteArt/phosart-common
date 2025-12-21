@@ -9,8 +9,8 @@ export type {
 	Picture,
 	Source
 } from './art.ts';
-export { useArtist, useArtists, useArtistsContext } from './artistcontext.ts';
-export { useCharacterContext, useCharacters } from './charactercontext.ts';
+export { useArtist, useArtists, useArtistsContext } from './artistcontext.svelte.ts';
+export { useCharacterContext, useCharacters } from './charactercontext.svelte.ts';
 export { formatDate } from './date.ts';
 export { markdown } from './markdown.ts';
 export { smoothScroll } from './smoothscroll.ts';
