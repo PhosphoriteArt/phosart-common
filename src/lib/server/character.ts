@@ -8,7 +8,7 @@ import type { z } from 'zod';
 import { processImage } from './imageprocess.ts';
 import { getCache, relativeFile } from './util.ts';
 
-export type CharacterCache = Record<string, z.infer<typeof FullCharacter>>
+export type CharacterCache = Record<string, z.infer<typeof FullCharacter>>;
 
 async function doResolveImage(
 	filename: string,
@@ -57,8 +57,8 @@ export async function characters() {
 		)
 	)
 		.map(({ filename, text }) => ({ filename, obj: yaml.parse(text) }))
-		.map(({ filename, obj }) => {
-			return { filename, obj: RawCharacter.parse(obj) };
+		.map(({ filename, obj }, idx) => {
+			return { filename, obj: RawCharacter.parse({ ...obj, index: idx }) };
 		})
 		.reduce<Record<string, z.infer<typeof RawCharacter>>>(
 			(rec, { filename, obj }) => ({ ...rec, [filename]: obj }),
