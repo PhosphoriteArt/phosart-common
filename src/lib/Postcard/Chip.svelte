@@ -6,8 +6,7 @@
 	} from '../util/phosart_config.svelte.ts';
 </script>
 
-<script lang="ts" generics="Type extends keyof ChipOptionsByType">
-	import type { Snippet } from 'svelte';
+<script lang="ts">
 	import Character from './Description/Character.svelte';
 
 	interface Props<K extends keyof ChipOptionsByType> {

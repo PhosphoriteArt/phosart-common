@@ -21,5 +21,7 @@
 		"titleBar.inactiveBackground": "#f0a8e999",
 		"titleBar.inactiveForeground": "#15202b99"
 	},
-	"peacock.color": "#f0a8e9"
+	"peacock.color": "#f0a8e9",
+	"eslint.enable": true,
+	"eslint.validate": ["javascript", "javascriptreact", "svelte"]
 }

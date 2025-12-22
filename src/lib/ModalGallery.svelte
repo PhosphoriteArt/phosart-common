@@ -86,7 +86,9 @@
 		isGalleryOpen.open = selected !== null;
 	});
 	run(() => {
-		hashUpdateReady && updateHash(selected);
+		if (hashUpdateReady) {
+			updateHash(selected);
+		}
 	});
 </script>
 

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import '@fortawesome/fontawesome-free/css/all.min.css';
 
-	import type { Artist, ArtPiece, CharacterRef } from '../../util/art.ts';
+	import type { Artist, CharacterRef } from '../../util/art.ts';
 	import { useArtists } from '../../util/artistcontext.svelte.ts';
 	import { useCharacters } from '../../util/charactercontext.svelte.ts';
 	import { useChipConfig } from '../../util/phosart_config.svelte.ts';

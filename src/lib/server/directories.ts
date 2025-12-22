@@ -4,9 +4,9 @@ import * as fs from 'node:fs';
 function findRoot() {
 	let cur = dirname(process.env.PROJECT_ROOT ?? process.argv[1]);
 	while (cur.length > 1) {
-		if (cur.includes("node_modules")) {
-			cur = join(cur, "..")
-			continue
+		if (cur.includes('node_modules')) {
+			cur = join(cur, '..');
+			continue;
 		}
 
 		try {

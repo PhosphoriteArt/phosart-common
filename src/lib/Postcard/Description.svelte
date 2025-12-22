@@ -4,7 +4,6 @@
 	import { markdown } from '../util/markdown.ts';
 	import { type ArtPiece, normalizeArtist } from '../util/art.ts';
 
-	import Character from './Description/Character.svelte';
 	import { formatDate } from '../util/date.ts';
 	import Chip from './Chip.svelte';
 
@@ -41,6 +40,7 @@
 			style="font-size:0.8em; line-height: 1.2em; {piece.description ? 'margin-bottom: 1rem;' : ''}"
 			class="no-p"
 		>
+			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 			{@html markdown(
 				(selectedAlt && piece.alts?.[selectedAlt]?.description) || piece.description || ''
 			)}
@@ -65,7 +65,7 @@
 					</span>
 				{/if}
 
-				{#each piece.alts as alt, i}
+				{#each piece.alts as alt, i (alt.name)}
 					{#if i !== selectedAlt}
 						<span>
 							<!-- svelte-ignore a11y_invalid_attribute -->
@@ -90,10 +90,10 @@
 		</div>
 
 		<div style="font-size: 0.7em" class="tags">
-			{#each normalizeArtist(piece.artist) as artist}
+			{#each normalizeArtist(piece.artist) as artist (artist.name)}
 				<Chip type="artist" data={artist} />
 			{/each}
-			{#each piece.characters ?? [] as character, i}
+			{#each piece.characters ?? [] as character, i (i)}
 				<Chip type="character" data={character} />
 			{/each}
 			{#if piece.tags}

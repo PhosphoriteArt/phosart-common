@@ -40,6 +40,7 @@
 	$effect(() => {
 		let prev = untrack(() => lastSrc);
 
+		// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 		picture;
 		untrack(() => {
 			lastSrc = picture.fallback.src;

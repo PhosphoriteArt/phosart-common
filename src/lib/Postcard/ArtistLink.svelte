@@ -1,4 +1,5 @@
 <script lang="ts" module>
+	/* eslint-disable svelte/no-useless-mustaches */
 	export function asString(artists: Array<NormalizedArtist>) {
 		let s = '';
 		for (let i = 0; i < artists.length; i++) {
@@ -22,7 +23,6 @@
 
 <script lang="ts">
 	import type { NormalizedArtist } from '../util/art.ts';
-
 	interface Props {
 		artists: Array<NormalizedArtist>;
 	}
