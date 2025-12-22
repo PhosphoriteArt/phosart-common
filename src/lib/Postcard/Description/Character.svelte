@@ -1,12 +1,13 @@
 <script lang="ts">
 	import '@fortawesome/fontawesome-free/css/all.min.css';
 
-	import type { Artist, ArtPiece } from '../../util/art.ts';
+	import type { Artist, ArtPiece, CharacterRef } from '../../util/art.ts';
 	import { useArtists } from '../../util/artistcontext.svelte.ts';
 	import { useCharacters } from '../../util/charactercontext.svelte.ts';
+	import { useChipConfig } from '../../util/phosart_config.svelte.ts';
 
 	interface Props {
-		character: ArtPiece['characters'][number];
+		character: CharacterRef;
 	}
 
 	let { character }: Props = $props();
@@ -22,48 +23,57 @@
 	let artistUrl = $derived(artistObj?.links ? Object.values(artistObj.links)[0] : null);
 
 	let name = $derived(characterObj?.name ?? handle);
-	let url = $derived(characterObj ? `/characters/${handle.toLowerCase()}` : null);
+
+	const config = useChipConfig('character');
+	const href = $derived(config?.action?.makeHref?.(character));
+	const clickHandler = $derived(
+		config?.action?.onclick ? () => config?.action?.onclick?.(character) : null
+	);
 </script>
 
-{#if artist}
-	<span class="character">
-		<a href="/characters/{handle.toLowerCase()}" style="display: none;">
-			(this link is present only for static generation– forces SvelteKit to prerender the page.)
-		</a>
-
-		<svelte:element
-			this={artistUrl ? 'a' : 'span'}
-			href={artistUrl ?? undefined}
-			target={!artistUrl ? undefined : artistUrl.startsWith('http') ? '_blank' : '_self'}
-			rel={!artistUrl
-				? undefined
-				: artistUrl.startsWith('http')
-					? 'noreferrer noopener nofollow'
-					: ''}
-		>
-			<span class="fa solid fa-user-group"></span>
-			<span>
-				{artistObj?.name ? `@${artistObj.name}` : artist}'s
-			</span>
-			<span>
+{#if !config?.hidden}
+	{#if artist}
+		<span class="character">
+			<svelte:element
+				this={artistUrl ? 'a' : 'span'}
+				href={artistUrl ?? undefined}
+				target={!artistUrl ? undefined : artistUrl.startsWith('http') ? '_blank' : '_self'}
+				rel={!artistUrl
+					? undefined
+					: artistUrl.startsWith('http')
+						? 'noreferrer noopener nofollow'
+						: ''}
+			>
+				<span class="fa solid fa-user-group"></span>
+				<span>
+					{artistObj?.name ? `@${artistObj.name}` : artist}'s
+				</span>
+				<span>
+					{name}
+				</span>
+			</svelte:element>
+		</span>
+	{:else if href}
+		<span class="character">
+			<a {href}>
+				<span class="fa solid fa-user"></span>
 				{name}
-			</span>
-		</svelte:element>
-	</span>
-{:else if url}
-	<span class="character">
-		<a href={url}>
+			</a>
+		</span>
+	{:else if clickHandler}
+		<span class="character">
+			<!-- svelte-ignore a11y_invalid_attribute -->
+			<a href="#" onclick={clickHandler}>
+				<span class="fa solid fa-user"></span>
+				{name}
+			</a>
+		</span>
+	{:else}
+		<span class="character">
 			<span class="fa solid fa-user"></span>
 			{name}
-		</a>
-	</span>
-{:else}
-	<span class="character">
-		<a href="/characters/{character.toString().toLowerCase()}">
-			<span class="fa solid fa-user"></span>
-			{name}
-		</a>
-	</span>
+		</span>
+	{/if}
 {/if}
 
 <style>

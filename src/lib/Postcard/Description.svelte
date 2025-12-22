@@ -6,6 +6,7 @@
 
 	import Character from './Description/Character.svelte';
 	import { formatDate } from '../util/date.ts';
+	import Chip from './Chip.svelte';
 
 	interface Props {
 		piece: ArtPiece;
@@ -92,26 +93,14 @@
 
 		<div style="font-size: 0.7em" class="tags">
 			{#each normalizeArtist(piece.artist) as artist}
-				<span>
-					<a href="/artist/{artist.name}">
-						<span class="fa solid fa-paintbrush"></span>
-						{artist.info ? `@${artist.name}` : artist.name}
-					</a>
-				</span>
+				<Chip type="artist" data={artist} />
 			{/each}
 			{#each piece.characters ?? [] as character, i}
-				<span>
-					<Character {character} />
-				</span>
+				<Chip type="character" data={character} />
 			{/each}
 			{#if piece.tags}
 				{#each piece.tags as tag (tag)}
-					<span>
-						<a href="/tag/{tag.toLowerCase()}">
-							<!-- <span class="icon solid fa-hashtag" /> -->
-							#{tag.toLowerCase()}
-						</a>
-					</span>
+					<Chip type="tag" data={tag} />
 				{/each}
 			{/if}
 		</div>
@@ -133,26 +122,6 @@
 		row-gap: 0.25rem;
 		column-gap: 0.25rem;
 
-		& > span {
-			line-height: 1.3em;
-			display: inline-block;
-			padding: 2px 6px;
-			border-radius: 4px;
-			border: 1px solid #fff4;
-			background-color: #0001;
-			transition: border-color 0.35s ease-in-out;
-			white-space: nowrap;
-
-			& :global(a) {
-				border: 0;
-			}
-			&:first-child {
-				margin-left: 0;
-			}
-			&:has(:global(a:hover)) {
-				border-color: var(--color-accent);
-			}
-		}
 	}
 	.description-inner {
 		display: grid;

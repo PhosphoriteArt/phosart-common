@@ -16,6 +16,7 @@ export type ArtPiece = z.infer<typeof FullArtPiece>;
 export type Picture = z.infer<typeof ZPicture>;
 export type Image = z.infer<typeof ZImage>;
 export type Source = z.infer<typeof ZSource>;
+export type CharacterRef = ArtPiece['characters'][number];
 
 export interface NormalizedArtist {
 	name: string;
@@ -45,7 +46,7 @@ export function normalizeArtist(
 	if (!as) {
 		return [];
 	}
-	
+
 	if (!Array.isArray(as)) {
 		return [normalizeSingleArtist(as, artists)];
 	}

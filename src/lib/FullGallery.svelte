@@ -2,13 +2,14 @@
 	import type { ArtPiece } from './util/art.ts';
 	import ModalGallery from './ModalGallery.svelte';
 	import type { Component } from 'svelte';
+	import { useLibraryConfig } from './util/phosart_config.svelte.ts';
 
 	interface Props {
 		pieces: ArtPiece[];
 		addNav?: boolean;
 		noDetails?: boolean;
 		browser: boolean;
-		CardComponent: Component<{
+		CardComponent?: Component<{
 			piece: ArtPiece;
 			onselect: () => void;
 			showDescriptionByDefault: boolean;
@@ -16,6 +17,10 @@
 	}
 
 	let { pieces, addNav = false, noDetails = false, browser, CardComponent }: Props = $props();
+
+	let config = useLibraryConfig();
+
+	const TheCardComponent = $derived(CardComponent ?? config.gallery?.DefaultCardComponent);
 
 	let selected: number | null = $state(null);
 
@@ -34,7 +39,11 @@
 			data-nav-icon="palette"
 			class:scroll-ignore={!addNav}
 		>
-			<CardComponent {piece} onselect={() => onSelect(i)} showDescriptionByDefault={!noDetails} />
+			<TheCardComponent
+				{piece}
+				onselect={() => onSelect(i)}
+				showDescriptionByDefault={!noDetails}
+			/>
 		</section>
 	{/each}
 
