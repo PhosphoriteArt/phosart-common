@@ -18,7 +18,9 @@
 
 <div class="headline-container">
 	<div style="font-style: italic; padding-left: 2rem;" class="byline">
-		by <ArtistLink {artists} />
+		{#if artists && artists.length > 0}
+			by <ArtistLink {artists} />
+		{/if}
 	</div>
 	<div style="display: flex">
 		{#if showName}
