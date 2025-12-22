@@ -86,9 +86,7 @@
 		{/if}
 
 		<div style="font-size: 0.7em; line-height: 1.2em; margin-bottom: 1rem" class="tags">
-			<span>
-				<a href={`/piece/${piece.slug}`}> Permalink </a>
-			</span>
+			<Chip type="permalink" data={piece} />
 		</div>
 
 		<div style="font-size: 0.7em" class="tags">
@@ -121,7 +119,6 @@
 		line-height: 2em;
 		row-gap: 0.25rem;
 		column-gap: 0.25rem;
-
 	}
 	.description-inner {
 		display: grid;
