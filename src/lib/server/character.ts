@@ -36,7 +36,7 @@ async function resolveImages(
 ): Promise<Record<string, z.infer<typeof FullCharacter>>> {
 	const final: Record<string, z.infer<typeof FullCharacter>> = {};
 	for (const [fname, doc] of Object.entries(documents)) {
-		final[doc.name.toLowerCase()] = await doResolveImage(fname, doc);
+		final[fname] = await doResolveImage(fname, doc);
 	}
 	return final;
 }

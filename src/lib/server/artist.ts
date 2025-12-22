@@ -29,7 +29,7 @@ export async function artists() {
 			return { filename, obj: Artist.parse(obj) };
 		})
 		.reduce<Record<string, z.infer<typeof Artist>>>(
-			(rec, { obj }) => ({ ...rec, [obj.handle]: obj }),
+			(rec, { filename, obj }) => ({ ...rec, [filename]: obj }),
 			{}
 		);
 
