@@ -63,7 +63,7 @@
 	{:else}
 		<svelte:element
 			this={href ? 'a' : 'span'}
-			style="cursor: pointer;"
+			style={href || clickHandler ? 'cursor: pointer;' : undefined}
 			href={href ?? undefined}
 			onclick={clickHandler ?? undefined}
 			role="button"

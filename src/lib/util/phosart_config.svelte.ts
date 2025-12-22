@@ -3,7 +3,7 @@ import type FullGallery from '../FullGallery.svelte';
 import { createContext, type ComponentProps } from 'svelte';
 import type { ArtPiece, CharacterRef, NormalizedArtist } from './art.ts';
 
-const [get, set] = createContext<LibraryConfig>();
+const [get, set] = createContext<LibraryConfig | undefined>();
 
 export type ChipAction<T> =
 	| {
@@ -16,7 +16,7 @@ export type ChipAction<T> =
 	  };
 
 type ChipOptionBase<T> =
-	| { action?: ChipAction<T>; hidden?: never }
+	| { action?: ChipAction<T> | null; hidden?: never }
 	| { hidden?: true; action?: never };
 
 type ChipOptionTypes = {
@@ -27,18 +27,54 @@ type ChipOptionTypes = {
 };
 
 export type ChipOptions<T> = ChipOptionBase<T>;
-export type DataType<Type extends keyof ChipOptionTypes> = ChipOptionTypes[Type]
+export type DataType<Type extends keyof ChipOptionTypes> = ChipOptionTypes[Type];
 
 export type ChipOptionsByType = {
-	[K in keyof ChipOptionTypes]?: ChipOptions<DataType<K>>
-}
+	[K in keyof ChipOptionTypes]?: ChipOptions<DataType<K>>;
+};
 
 export interface LibraryConfig {
 	gallery?: {
-		DefaultCardComponent?: NonNullable<ComponentProps<typeof FullGallery>['CardComponent']>;
-		DefaultPieceComponent?: NonNullable<ComponentProps<typeof Gallery>['PieceComponent']>;
+		DefaultCardComponent?: NonNullable<ComponentProps<typeof FullGallery>['CardComponent']> | null;
+		DefaultPieceComponent?: NonNullable<ComponentProps<typeof Gallery>['PieceComponent']> | null;
 	};
-	modal?: { chipOptionsByType?: ChipOptionsByType };
+	modal?: { chipOptionsByType?: ChipOptionsByType | null };
+}
+
+const DEFAULT_CONFIG: LibraryConfig = {
+	gallery: {
+		DefaultCardComponent: undefined, // TODO
+		DefaultPieceComponent: undefined // TODO
+	},
+	modal: {
+		chipOptionsByType: {
+			artist: {
+				action: { makeHref: (artist) => `/artist/${artist.info?.name ?? artist.name}` }
+			},
+			tag: { action: { makeHref: (tag) => `/tag/${tag}` } },
+			character: { action: { makeHref: (ch) => `/characters/${ch}` } },
+			permalink: { action: { makeHref: (pl) => `/piece/${pl.slug}` } }
+		}
+	}
+};
+
+function spread(cfg: LibraryConfig): LibraryConfig {
+	const modalBase = DEFAULT_CONFIG.modal;
+	let gallery = DEFAULT_CONFIG.gallery;
+	let modal = modalBase;
+	let chipOptionsByType = modalBase?.chipOptionsByType;
+
+	if (cfg.gallery) {
+		gallery = { ...DEFAULT_CONFIG.gallery, ...cfg.gallery };
+	}
+	if (cfg.modal) {
+		if (cfg.modal.chipOptionsByType) {
+			chipOptionsByType = { ...modalBase?.chipOptionsByType, ...cfg.modal.chipOptionsByType };
+		}
+		modal = { ...modalBase, ...cfg.modal, chipOptionsByType };
+	}
+
+	return { ...cfg, gallery, modal };
 }
 
 export function useChipConfig<Type extends keyof ChipOptionsByType>(
@@ -52,12 +88,12 @@ export function useChipConfig<Type extends keyof ChipOptionsByType>(
 }
 
 export function setLibraryConfig(config: LibraryConfig) {
-	set(config);
+	set(spread(config));
 	$effect(() => {
-		set(config);
+		set(spread(config));
 	});
 }
 
 export function useLibraryConfig(): LibraryConfig {
-	return get();
+	return get() ?? DEFAULT_CONFIG;
 }
