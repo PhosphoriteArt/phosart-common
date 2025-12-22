@@ -1,5 +1,3 @@
-// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-
 import prettier from 'eslint-config-prettier';
 import { fileURLToPath } from 'node:url';
 import { includeIgnoreFile } from '@eslint/compat';
@@ -35,7 +33,7 @@ const config = defineConfig(
 		languageOptions: {
 			parserOptions: {
 				projectService: {
-					allowDefaultProject: ['*.js', 'playwright.config.ts', '.storybook/*.ts', 'e2e/*.ts']
+					allowDefaultProject: ['*.js', 'playwright.config.ts', 'e2e/*.ts']
 				},
 				extraFileExtensions: ['.svelte'],
 				parser: ts.parser,
