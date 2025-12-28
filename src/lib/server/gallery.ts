@@ -23,6 +23,7 @@ type FullGalleryT = z.infer<typeof FullGallery>;
 type GalleryListing<T> = Record<FileName, T>;
 
 export type GalleryCache = GalleryListing<FullGalleryT>;
+export type RawGalleryCache = GalleryListing<RawGalleryT>;
 
 type BaseArtPieceT = z.infer<typeof BaseArtPiece>;
 type FullArtPieceT = z.infer<typeof FullArtPiece>;
@@ -100,8 +101,8 @@ async function resolveReferences(gallery: BaseGalleryT, fname: FileName): Promis
 	};
 }
 
-export async function galleries() {
-	const cached = getCache().galleryCache;
+export async function rawGalleries(): Promise<RawGalleryCache> {
+	const cached = getCache().rawGalleryCache;
 	if (cached) {
 		return cached;
 	}
@@ -127,6 +128,18 @@ export async function galleries() {
 			(rec, { filename, obj }) => ({ ...rec, [filename]: obj }),
 			{}
 		);
+
+	getCache().rawGalleryCache = documents;
+	return documents;
+}
+
+export async function galleries() {
+	const cached = getCache().galleryCache;
+	if (cached) {
+		return cached;
+	}
+
+	const documents = await rawGalleries();
 
 	const out = await resolveExtends(documents);
 	getCache().galleryCache = out;

@@ -5,6 +5,7 @@ export type {
 	Character,
 	CharacterRef,
 	Gallery,
+	RawGallery,
 	Image,
 	NormalizedArtist,
 	Picture,

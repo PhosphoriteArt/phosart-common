@@ -2,7 +2,7 @@ import * as fs from 'node:fs/promises';
 import * as crypto from 'node:crypto';
 import path from 'node:path';
 import { $DATA } from './directories.ts';
-import type { GalleryCache } from './gallery.ts';
+import type { GalleryCache, RawGalleryCache } from './gallery.ts';
 import type { CharacterCache } from './character.ts';
 import type { ArtistCache } from './artist.ts';
 
@@ -22,6 +22,7 @@ export function relativeFile(startFile: string, nextFile: string) {
 
 export interface GlobalCache {
 	galleryCache: GalleryCache | null;
+	rawGalleryCache: RawGalleryCache | null;
 	characterCache: CharacterCache | null;
 	artistCache: ArtistCache | null;
 }
@@ -37,7 +38,8 @@ export function getCache(): GlobalCache {
 		cache = {
 			galleryCache: null,
 			characterCache: null,
-			artistCache: null
+			artistCache: null,
+			rawGalleryCache: null
 		};
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		(global as any).__art_global_cache = cache;

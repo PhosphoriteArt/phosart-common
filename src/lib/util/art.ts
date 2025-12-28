@@ -7,8 +7,13 @@ import type {
 	Image as ZImage,
 	Source as ZSource
 } from '../server/models/image.ts';
-import type { FullGallery, FullArtPiece } from '../server/models/Gallery.ts';
+import type {
+	FullGallery,
+	FullArtPiece,
+	RawGallery as ZRawGallery
+} from '../server/models/Gallery.ts';
 
+export type RawGallery = z.infer<typeof ZRawGallery>;
 export type Gallery = z.infer<typeof FullGallery>;
 export type Character = z.infer<typeof FullCharacter>;
 export type Artist = z.infer<typeof ZArtist>;

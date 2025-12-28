@@ -3,7 +3,7 @@ export { type ArtistCache, artists } from './artist.ts';
 export { type CharacterCache, characters } from './character.ts';
 export { $DATA as $ART, $PUBLIC, $ROOT } from './directories.ts';
 export { filter } from './filter.ts';
-export { type GalleryCache, galleries } from './gallery.ts';
+export { type GalleryCache, type RawGalleryCache, galleries, rawGalleries } from './gallery.ts';
 export { processImage, processVideo } from './imageprocess.ts';
 
 export { Artist } from './models/Artist.ts';
