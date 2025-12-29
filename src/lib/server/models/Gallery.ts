@@ -10,13 +10,16 @@ export const Video = z.object({
 	thumb: z.string()
 });
 
-const Artist = z.union([z.string(), z.object({ name: z.string(), anonymous: z.coerce.boolean() })]);
+export const BaseArtist = z.union([
+	z.string(),
+	z.object({ name: z.string(), anonymous: z.coerce.boolean() })
+]);
 
 function ArtPiece<T extends z.ZodTypeAny>(imageType: T) {
 	return z.object({
 		id: z.string().optional(),
 		name: z.string(),
-		artist: z.union([Artist, z.array(Artist)]).optional(),
+		artist: z.union([BaseArtist, z.array(BaseArtist)]).optional(),
 		date: z.coerce.date(),
 		image: imageType,
 		characters: z
