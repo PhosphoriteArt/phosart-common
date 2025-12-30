@@ -10,7 +10,8 @@ export type {
 	NormalizedArtist,
 	Picture,
 	Source,
-	BaseArtist
+	BaseArtist,
+	BaseArtPiece
 } from './art.ts';
 export { useArtist, useArtists, useArtistsContext } from './artistcontext.svelte.ts';
 export { useCharacterContext, useCharacters } from './charactercontext.svelte.ts';
