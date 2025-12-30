@@ -13,7 +13,7 @@ import {
 } from './models/Gallery.ts';
 import { $DATA } from './directories.ts';
 import { processImage, processVideo } from './imageprocess.ts';
-import { getCache, hash, relativeFile } from './util.ts';
+import { clearCache, getCache, hash, relativeFile } from './util.ts';
 const GalleryLogger = new Logger({ minLevel: 2 });
 
 type FileName = string;
@@ -133,7 +133,7 @@ export async function rawGalleries(): Promise<RawGalleryCache> {
 	return documents;
 }
 
-export async function galleries() {
+export async function galleries(doRetry: boolean = true) {
 	const cached = getCache().galleryCache;
 	if (cached) {
 		return cached;
@@ -141,7 +141,17 @@ export async function galleries() {
 
 	const documents = await rawGalleries();
 
-	const out = await resolveExtends(documents);
-	getCache().galleryCache = out;
-	return out;
+	try {
+		const out = await resolveExtends(documents);
+		getCache().galleryCache = out;
+		return out;
+	} catch (e) {
+		if (doRetry) {
+			GalleryLogger.warn('Encountered error, clearing cache and trying again', e);
+			clearCache();
+			return await galleries(/* doRetry = */ false);
+		} else {
+			throw e;
+		}
+	}
 }
