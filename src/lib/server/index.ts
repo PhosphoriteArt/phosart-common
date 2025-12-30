@@ -17,3 +17,4 @@ export {
 	Video
 } from './models/Gallery.ts';
 export { Image, Picture, Source } from './models/image.ts';
+export { clearCache } from './util.ts';

@@ -47,3 +47,8 @@ export function getCache(): GlobalCache {
 
 	return cache;
 }
+
+export function clearCache() {
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	(global as any).__art_global_cache = null;
+}
