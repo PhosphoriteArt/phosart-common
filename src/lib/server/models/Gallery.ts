@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { Picture } from './image.ts';
 
-const ExtendedGallery = z.object({
+export const ExtendedGallery = z.object({
 	$extends: z.array(z.string())
 });
 

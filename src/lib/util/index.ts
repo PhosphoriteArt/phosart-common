@@ -11,7 +11,9 @@ export type {
 	Picture,
 	Source,
 	BaseArtist,
-	BaseArtPiece
+	BaseArtPiece,
+	BaseGallery,
+	ExtendedGallery
 } from './art.ts';
 export { useArtist, useArtists, useArtistsContext } from './artistcontext.svelte.ts';
 export { useCharacterContext, useCharacters } from './charactercontext.svelte.ts';

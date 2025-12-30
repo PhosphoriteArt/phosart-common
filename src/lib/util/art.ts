@@ -12,10 +12,14 @@ import type {
 	FullArtPiece,
 	BaseArtPiece as ZBaseArtPiece,
 	RawGallery as ZRawGallery,
-	BaseArtist as ZBaseArtist
+	BaseArtist as ZBaseArtist,
+	BaseGallery as ZBaseGallery,
+	ExtendedGallery as ZExtendedGallery
 } from '../server/models/Gallery.ts';
 
 export type RawGallery = z.infer<typeof ZRawGallery>;
+export type BaseGallery = z.infer<typeof ZBaseGallery>;
+export type ExtendedGallery = z.infer<typeof ZExtendedGallery>;
 export type Gallery = z.infer<typeof FullGallery>;
 export type Character = z.infer<typeof FullCharacter>;
 export type BaseArtist = z.infer<typeof ZBaseArtist>;
