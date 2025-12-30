@@ -3,11 +3,12 @@ import { Logger } from 'tslog';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import type { Source } from '../util/art.ts';
-import { hashUrl } from './util.ts';
+import { getLogLevel, hashUrl } from './util.ts';
 import type { z } from 'zod';
 import { $PUBLIC } from './directories.ts';
 import type { Picture } from './models/image.ts';
-const ImageProcessLog = new Logger({ minLevel: 1 });
+import { getFastHash, updateFastCache, type FastCache } from './fastcache.ts';
+const ImageProcessLog = new Logger({ minLevel: getLogLevel() });
 
 type SourceInfo = Source;
 type ImageFormat = keyof sharp.FormatEnum;
@@ -38,30 +39,66 @@ async function getPictureDetails(h: string): Promise<z.infer<typeof Picture> | n
 	}
 }
 
-export async function processVideo(url: string, name: string) {
-	const h = await hashUrl(url);
+export async function processVideoFastcache(
+	fc: FastCache,
+	fullpath: string,
+	relpath: string,
+	name: string
+): Promise<string> {
+	const [prehash, mtime] = await getFastHash(fc, fullpath, relpath);
+	const [path, hash] = await processVideo(fullpath, name, prehash);
+	if (!prehash) {
+		await updateFastCache(fc, fullpath, relpath, hash, mtime);
+	}
+
+	return path;
+}
+
+export async function processVideo(
+	url: string,
+	name: string,
+	prehash: string | null
+): Promise<[string, string]> {
+	const h = prehash ?? (await hashUrl(url));
 	name = name + path.extname(url);
 	const outputDir = path.join($PUBLIC, h);
 	await fs.mkdir(outputDir, { recursive: true });
 	await fs.copyFile(url, path.join(outputDir, name));
 
-	return `/_/${h}/${name}`;
+	return [`/_/${h}/${name}`, h];
 }
 
-export async function processImage(url: string) {
-	const h = await hashUrl(url);
+export async function processImageFastcache(
+	fc: FastCache,
+	fullpath: string,
+	relpath: string
+): Promise<z.infer<typeof Picture>> {
+	const [prehash, mtime] = await getFastHash(fc, fullpath, relpath);
+	const [image, hash] = await processImage(fullpath, prehash);
+	if (!prehash) {
+		await updateFastCache(fc, fullpath, relpath, hash, mtime);
+	}
+
+	return image;
+}
+
+export async function processImage(
+	url: string,
+	prehash: string | null
+): Promise<[z.infer<typeof Picture>, string]> {
+	const h = prehash ?? (await hashUrl(url));
 	ImageProcessLog.silly('[IMAGE] Got image with hash', h);
 	const cached = await getPictureDetails(h);
 	if (cached) {
-		ImageProcessLog.info('[IMAGE] Found cached details for', url, h);
-		return cached;
+		ImageProcessLog.debug('[IMAGE] Found cached details for', url, h);
+		return [cached, h];
 	}
-	ImageProcessLog.info('[IMAGE] Starting to process', url);
+	ImageProcessLog.debug('[IMAGE] Starting to process', url);
 	const image = sharp(url, { animated: true });
 	const details = await doProcessImage(url, image, h);
 	ImageProcessLog.info('[IMAGE] Finished processing', url, details);
 
-	return details;
+	return [details, h];
 }
 
 function removeDuplicates(images: SavedImage[]): SavedImage[] {

@@ -16,7 +16,11 @@ export function hash(object: object) {
 	return crypto.createHash('md5').update(JSON.stringify(object)).digest('hex').substring(24);
 }
 
-export function relativeFile(startFile: string, nextFile: string) {
+export function relPath(startFile: string, nextFile: string) {
+	const out = path.join(path.dirname(startFile), nextFile);
+	return out;
+}
+export function fullPath(startFile: string, nextFile: string) {
 	const out = path.join($DATA, path.dirname(startFile), nextFile);
 	return out;
 }
@@ -81,4 +85,16 @@ export function getCache(): GlobalCache {
 export function clearCache() {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	(global as any).__art_global_cache = null;
+}
+
+export function getLogLevel(defaultLevel: number = 4): number {
+	try {
+		if (!process.env.LOG_LEVEL) {
+			return defaultLevel;
+		}
+
+		return parseInt(process.env.LOG_LEVEL);
+	} catch {
+		return defaultLevel;
+	}
 }

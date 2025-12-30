@@ -5,18 +5,28 @@ import * as path from 'node:path';
 import * as yaml from 'yaml';
 import { FullCharacter, RawCharacter } from './models/Character.ts';
 import type { z } from 'zod';
-import { processImage } from './imageprocess.ts';
-import { cacheVersion, getCache, relativeFile } from './util.ts';
+import { processImageFastcache } from './imageprocess.ts';
+import { cacheVersion, getCache, fullPath, relPath } from './util.ts';
+import { flushFastCache, readFastCache, type FastCache } from './fastcache.ts';
 
 export type CharacterCache = Record<string, z.infer<typeof FullCharacter>>;
 
 async function doResolveImage(
 	filename: string,
-	character: z.infer<typeof RawCharacter>
+	character: z.infer<typeof RawCharacter>,
+	fc: FastCache
 ): Promise<z.infer<typeof FullCharacter>> {
-	const full = processImage(relativeFile(filename, character.picture.image));
+	const full = processImageFastcache(
+		fc,
+		fullPath(filename, character.picture.image),
+		relPath(filename, character.picture.image)
+	);
 	const thumb = character.thumbnail
-		? processImage(relativeFile(filename, character.thumbnail.image))
+		? processImageFastcache(
+				fc,
+				fullPath(filename, character.thumbnail.image),
+				relPath(filename, character.thumbnail.image)
+			)
 		: undefined;
 
 	return {
@@ -32,11 +42,12 @@ async function doResolveImage(
 }
 
 async function resolveImages(
-	documents: Record<string, z.infer<typeof RawCharacter>>
+	documents: Record<string, z.infer<typeof RawCharacter>>,
+	fc: FastCache
 ): Promise<Record<string, z.infer<typeof FullCharacter>>> {
 	const final: Record<string, z.infer<typeof FullCharacter>> = {};
 	for (const [fname, doc] of Object.entries(documents)) {
-		final[fname] = await doResolveImage(fname, doc);
+		final[fname] = await doResolveImage(fname, doc, fc);
 	}
 	return final;
 }
@@ -87,7 +98,9 @@ export async function characters() {
 			{}
 		);
 
-	const out = await resolveImages(documents);
+	const fc = await readFastCache();
+	const out = await resolveImages(documents, fc);
+	await flushFastCache(fc);
 	getCache().characterCache.cache = out;
 	getCache().characterCache.version = nextVersion;
 	return out;

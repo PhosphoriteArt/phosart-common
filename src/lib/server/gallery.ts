@@ -12,9 +12,18 @@ import {
 	RawGallery
 } from './models/Gallery.ts';
 import { $DATA } from './directories.ts';
-import { processImage, processVideo } from './imageprocess.ts';
-import { cacheVersion, clearCache, getCache, hash, relativeFile } from './util.ts';
-const GalleryLogger = new Logger({ minLevel: 2 });
+import { processImageFastcache, processVideoFastcache } from './imageprocess.ts';
+import {
+	cacheVersion,
+	clearCache,
+	getCache,
+	hash,
+	fullPath,
+	relPath,
+	getLogLevel
+} from './util.ts';
+import { flushFastCache, readFastCache, type FastCache } from './fastcache.ts';
+const GalleryLogger = new Logger({ minLevel: getLogLevel() });
 
 type FileName = string;
 type BaseGalleryT = z.infer<typeof BaseGallery>;
@@ -31,10 +40,11 @@ type FullArtPieceT = z.infer<typeof FullArtPiece>;
 async function resolveExtendsRec(
 	fname: string,
 	gallery: RawGalleryT,
-	rec: Record<FileName, RawGalleryT>
+	rec: Record<FileName, RawGalleryT>,
+	fc: FastCache
 ): Promise<FullGalleryT> {
 	if (!('$extends' in gallery)) {
-		return await resolveReferences(gallery, fname);
+		return await resolveReferences(gallery, fname, fc);
 	}
 	const full: FullGalleryT = { pieces: [] };
 
@@ -42,7 +52,7 @@ async function resolveExtendsRec(
 		const base = path.dirname(fname);
 		const target = path.join(base, relative);
 		if (rec[target]) {
-			const result = await resolveExtendsRec(target, rec[target], rec);
+			const result = await resolveExtendsRec(target, rec[target], rec, fc);
 			if ('$extends' in result) {
 				throw new Error('Impossible');
 			}
@@ -55,14 +65,15 @@ async function resolveExtendsRec(
 	return full;
 }
 async function resolveExtends(
-	rec: GalleryListing<RawGalleryT>
+	rec: GalleryListing<RawGalleryT>,
+	fc: FastCache
 ): Promise<GalleryListing<FullGalleryT>> {
 	const listing: GalleryListing<FullGalleryT> = {};
 	for (const [fname, gallery] of Object.entries(rec)) {
 		if ('$extends' in gallery) {
-			listing[fname] = await resolveExtendsRec(fname, gallery, rec);
+			listing[fname] = await resolveExtendsRec(fname, gallery, rec, fc);
 		} else {
-			listing[fname] = await resolveReferences(gallery, fname);
+			listing[fname] = await resolveReferences(gallery, fname, fc);
 		}
 	}
 	return listing;
@@ -70,34 +81,68 @@ async function resolveExtends(
 
 async function resolvePieceReferences(
 	piece: BaseArtPieceT,
-	filename: FileName
+	filename: FileName,
+	fc: FastCache
 ): Promise<FullArtPieceT> {
-	const image = await processImage(relativeFile(filename, piece.image));
+	const relpath = relPath(filename, piece.image);
+	const fullpath = fullPath(filename, piece.image);
+	const image = await processImageFastcache(fc, fullpath, relpath);
+
 	const alts = await Promise.all(
 		piece.alts?.map(async (alt) => ({
 			...alt,
-			image: await processImage(relativeFile(filename, alt.image)),
+			image: await processImageFastcache(
+				fc,
+				fullPath(filename, alt.image),
+				relPath(filename, alt.image)
+			),
 			video: alt.video
 				? {
-						full: await processVideo(relativeFile(filename, alt.video.full), 'full'),
-						thumb: await processVideo(relativeFile(filename, alt.video.thumb), 'thumb')
+						full: await processVideoFastcache(
+							fc,
+							fullPath(filename, alt.video.full),
+							relPath(filename, alt.video.full),
+							'full'
+						),
+						thumb: await processVideoFastcache(
+							fc,
+							fullPath(filename, alt.video.thumb),
+							relPath(filename, alt.video.thumb),
+							'thumb'
+						)
 					}
 				: undefined
 		})) ?? []
 	);
 	const video = piece.video
 		? {
-				full: await processVideo(relativeFile(filename, piece.video.full), 'full'),
-				thumb: await processVideo(relativeFile(filename, piece.video.thumb), 'thumb')
+				full: await processVideoFastcache(
+					fc,
+					fullPath(filename, piece.video.full),
+					relPath(filename, piece.video.full),
+					'full'
+				),
+				thumb: await processVideoFastcache(
+					fc,
+					fullPath(filename, piece.video.thumb),
+					relPath(filename, piece.video.thumb),
+					'thumb'
+				)
 			}
 		: undefined;
 
 	return { ...piece, image, alts, video };
 }
 
-async function resolveReferences(gallery: BaseGalleryT, fname: FileName): Promise<FullGalleryT> {
+async function resolveReferences(
+	gallery: BaseGalleryT,
+	fname: FileName,
+	fc: FastCache
+): Promise<FullGalleryT> {
 	return {
-		pieces: await Promise.all(gallery.pieces.map((piece) => resolvePieceReferences(piece, fname)))
+		pieces: await Promise.all(
+			gallery.pieces.map((piece) => resolvePieceReferences(piece, fname, fc))
+		)
 	};
 }
 
@@ -145,7 +190,9 @@ export async function galleries(doRetry: boolean = true) {
 	const documents = await rawGalleries();
 
 	try {
-		const out = await resolveExtends(documents);
+		const fc = await readFastCache();
+		const out = await resolveExtends(documents, fc);
+		await flushFastCache(fc);
 		getCache().galleryCache.cache = out;
 		getCache().galleryCache.version = nextVersion;
 		return out;
