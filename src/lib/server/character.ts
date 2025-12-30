@@ -6,7 +6,7 @@ import * as yaml from 'yaml';
 import { FullCharacter, RawCharacter } from './models/Character.ts';
 import type { z } from 'zod';
 import { processImage } from './imageprocess.ts';
-import { getCache, relativeFile } from './util.ts';
+import { cacheVersion, getCache, relativeFile } from './util.ts';
 
 export type CharacterCache = Record<string, z.infer<typeof FullCharacter>>;
 
@@ -43,8 +43,9 @@ async function resolveImages(
 
 export async function characters() {
 	const cached = getCache().characterCache;
-	if (cached) {
-		return cached;
+	const nextVersion = await cacheVersion();
+	if (cached.cache && cached.version === nextVersion) {
+		return cached.cache;
 	}
 	const allCharacters = await glob('./**/*.character', { cwd: $DATA });
 	const charactersData = await glob('./**/characters.yaml', { cwd: $DATA });
@@ -87,6 +88,7 @@ export async function characters() {
 		);
 
 	const out = await resolveImages(documents);
-	getCache().characterCache = out;
+	getCache().characterCache.cache = out;
+	getCache().characterCache.version = nextVersion;
 	return out;
 }

@@ -13,7 +13,7 @@ import {
 } from './models/Gallery.ts';
 import { $DATA } from './directories.ts';
 import { processImage, processVideo } from './imageprocess.ts';
-import { clearCache, getCache, hash, relativeFile } from './util.ts';
+import { cacheVersion, clearCache, getCache, hash, relativeFile } from './util.ts';
 const GalleryLogger = new Logger({ minLevel: 2 });
 
 type FileName = string;
@@ -103,8 +103,9 @@ async function resolveReferences(gallery: BaseGalleryT, fname: FileName): Promis
 
 export async function rawGalleries(): Promise<RawGalleryCache> {
 	const cached = getCache().rawGalleryCache;
-	if (cached) {
-		return cached;
+	const nextVersion = await cacheVersion();
+	if (cached.cache && cached.version === nextVersion) {
+		return cached.cache;
 	}
 	const allGalleries = await glob('./**/*.gallery', { cwd: $DATA });
 	const documents = (
@@ -129,21 +130,24 @@ export async function rawGalleries(): Promise<RawGalleryCache> {
 			{}
 		);
 
-	getCache().rawGalleryCache = documents;
+	getCache().rawGalleryCache.cache = documents;
+	getCache().rawGalleryCache.version = nextVersion;
 	return documents;
 }
 
 export async function galleries(doRetry: boolean = true) {
 	const cached = getCache().galleryCache;
-	if (cached) {
-		return cached;
+	const nextVersion = await cacheVersion();
+	if (cached.cache && cached.version === nextVersion) {
+		return cached.cache;
 	}
 
 	const documents = await rawGalleries();
 
 	try {
 		const out = await resolveExtends(documents);
-		getCache().galleryCache = out;
+		getCache().galleryCache.cache = out;
+		getCache().galleryCache.version = nextVersion;
 		return out;
 	} catch (e) {
 		if (doRetry) {

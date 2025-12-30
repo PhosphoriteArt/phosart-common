@@ -5,14 +5,15 @@ import * as path from 'node:path';
 import * as yaml from 'yaml';
 import type { z } from 'zod';
 import { Artist } from './models/Artist.ts';
-import { getCache } from './util.ts';
+import { cacheVersion, getCache } from './util.ts';
 
 export type ArtistCache = Record<string, z.infer<typeof Artist>>;
 
 export async function artists() {
 	const cached = getCache().artistCache;
-	if (cached) {
-		return cached;
+	const nextVersion = await cacheVersion();
+	if (cached.cache && cached.version === nextVersion) {
+		return cached.cache;
 	}
 	const allArtists = await glob('./**/*.artist', { cwd: $DATA });
 	const documents = (
@@ -33,6 +34,7 @@ export async function artists() {
 			{}
 		);
 
-	getCache().artistCache = documents;
+	getCache().artistCache.cache = documents;
+	getCache().artistCache.version = nextVersion;
 	return documents;
 }
