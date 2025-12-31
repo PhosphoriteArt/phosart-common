@@ -1,6 +1,11 @@
 // Reexport server-only modules here
 export { type ArtistCache, artists } from './artist.ts';
-export { type CharacterCache, characters } from './character.ts';
+export {
+	type CharacterCache,
+	characters,
+	type RawCharacterCache,
+	rawCharacters
+} from './character.ts';
 export { $DATA as $ART, $PUBLIC, $ROOT } from './directories.ts';
 export { filter } from './filter.ts';
 export { type GalleryCache, type RawGalleryCache, galleries, rawGalleries } from './gallery.ts';

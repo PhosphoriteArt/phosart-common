@@ -3,7 +3,7 @@ import * as crypto from 'node:crypto';
 import path from 'node:path';
 import { $DATA } from './directories.ts';
 import type { GalleryCache, RawGalleryCache } from './gallery.ts';
-import type { CharacterCache } from './character.ts';
+import type { CharacterCache, RawCharacterCache } from './character.ts';
 import type { ArtistCache } from './artist.ts';
 import { $ART } from './index.ts';
 
@@ -54,6 +54,7 @@ export interface GlobalCache {
 	galleryCache: Cache<GalleryCache>;
 	rawGalleryCache: Cache<RawGalleryCache>;
 	characterCache: Cache<CharacterCache>;
+	rawCharacterCache: Cache<RawCharacterCache>;
 	artistCache: Cache<ArtistCache>;
 }
 
@@ -72,6 +73,7 @@ export function getCache(): GlobalCache {
 		cache = {
 			galleryCache: { cache: null, version: null },
 			characterCache: { cache: null, version: null },
+			rawCharacterCache: { cache: null, version: null },
 			artistCache: { cache: null, version: null },
 			rawGalleryCache: { cache: null, version: null }
 		};
