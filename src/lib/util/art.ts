@@ -16,6 +16,7 @@ import type {
 	BaseGallery as ZBaseGallery,
 	ExtendedGallery as ZExtendedGallery
 } from '../server/models/Gallery.ts';
+import type { ArtistCache } from '../server/artist.ts';
 
 export type RawGallery = z.infer<typeof ZRawGallery>;
 export type BaseGallery = z.infer<typeof ZBaseGallery>;
@@ -38,12 +39,10 @@ export interface NormalizedArtist {
 }
 function normalizeSingleArtist(
 	a: string | { name: string; anonymous: boolean },
-	artists?: Artist[] | Artist
+	artists?: ArtistCache
 ): NormalizedArtist {
 	const name = typeof a === 'string' ? a : a.name;
-	const foundArtist =
-		(Array.isArray(artists) ? artists : [artists]).find((artist) => artist?.handle === name) ??
-		null;
+	const foundArtist = artists?.[name] ?? null;
 
 	return {
 		name,
@@ -54,7 +53,7 @@ function normalizeSingleArtist(
 
 export function normalizeArtist(
 	as: ArtPiece['artist'],
-	artists?: Artist[] | Artist
+	artists?: ArtistCache
 ): Array<NormalizedArtist> {
 	if (!as) {
 		return [];

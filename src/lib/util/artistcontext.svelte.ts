@@ -1,16 +1,17 @@
 import { getContext, setContext } from 'svelte';
-import { normalizeArtist, type ArtPiece, type Artist, type NormalizedArtist } from './art.ts';
+import { normalizeArtist, type ArtPiece, type NormalizedArtist } from './art.ts';
+import type { ArtistCache } from '../server/index.ts';
 
 const key = Symbol();
 
-export function useArtistsContext(artists: Artist[]) {
+export function useArtistsContext(artists: ArtistCache) {
 	setContext(key, artists);
 	$effect(() => {
 		setContext(key, artists);
 	});
 }
 
-export function useArtists(): Artist[] {
+export function useArtists(): ArtistCache {
 	return getContext(key);
 }
 
