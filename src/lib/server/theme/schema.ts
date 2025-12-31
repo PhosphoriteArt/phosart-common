@@ -3,7 +3,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import z from 'zod';
 import { $DATA } from '../directories.ts';
-import { parse } from 'yaml';
+import { parse, stringify } from 'yaml';
 import { Logger } from 'tslog';
 import { getLogLevel } from '../util.ts';
 const ThemeLogger = new Logger({ minLevel: getLogLevel() });
@@ -102,7 +102,14 @@ async function writeGeneratedSchema<T extends ThemeSettingsSchema>(schema: T) {
 	await writeFile($TYPE, ts, { encoding: 'utf-8' });
 }
 
-function validateSchema<T extends ThemeSettingsSchema>(
+export function validateSchema<T extends ThemeSettingsSchema>(
+	schema: T,
+	doc: unknown
+): doc is SettingsFor<T & BuiltinSettings> {
+	return doValidateSchema(Object.assign({}, builtinSettings, schema), doc);
+}
+
+function doValidateSchema<T extends ThemeSettingsSchema>(
 	schema: T,
 	doc: unknown
 ): doc is SettingsFor<T> {
@@ -180,7 +187,7 @@ export async function readThemeConfig<T extends ThemeSettingsSchema>(
 	}
 	try {
 		const doc = parse(text) ?? {};
-		if (validateSchema(Object.assign({}, builtinSettings, schema), doc)) {
+		if (validateSchema(schema, doc)) {
 			return doc;
 		}
 
@@ -188,6 +195,15 @@ export async function readThemeConfig<T extends ThemeSettingsSchema>(
 	} catch (err) {
 		ThemeLogger.warn('Error parsing theme file:', err);
 		throw err;
+	}
+}
+
+export async function writeThemeConfig<T extends ThemeSettingsSchema>(
+	schema: T,
+	config: SettingsFor<T & BuiltinSettings>
+): Promise<void> {
+	if (validateSchema(schema, config)) {
+		await writeFile($THEMECONFIG, stringify(config), { encoding: 'utf-8' });
 	}
 }
 

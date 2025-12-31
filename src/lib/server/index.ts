@@ -39,5 +39,7 @@ export {
 	type SettingsFor,
 	type ThemeSettingsSchema,
 	ZThemeSettingsSchema,
-	builtinSettings
+	builtinSettings,
+	validateSchema,
+	writeThemeConfig
 } from './theme/schema.ts';
