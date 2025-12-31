@@ -3,7 +3,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import z from 'zod';
 import { $DATA } from '../directories.ts';
-import { parseDocument } from 'yaml';
+import { parse } from 'yaml';
 import { Logger } from 'tslog';
 import { getLogLevel } from '../util.ts';
 const ThemeLogger = new Logger({ minLevel: getLogLevel() });
@@ -140,7 +140,7 @@ export async function readThemeConfig<T extends ThemeSettingsSchema>(
 		text = '';
 	}
 	try {
-		const doc = parseDocument(text);
+		const doc = parse(text) ?? {};
 		if (validateSchema(Object.assign({}, defaultSettings, schema), doc)) {
 			return doc;
 		}
@@ -154,7 +154,13 @@ export async function readThemeConfig<T extends ThemeSettingsSchema>(
 
 function writeJsonSchema() {
 	const p = path.resolve(path.join(import.meta.dirname, '../../../settings.schema.json'));
-	writeFileSync(p, JSON.stringify(ZThemeSettingsSchema.toJSONSchema()), { encoding: 'utf-8' });
+	writeFileSync(
+		p,
+		JSON.stringify(
+			z.intersection(ZThemeSettingsSchema, z.object({ $schema: z.string() })).toJSONSchema()
+		),
+		{ encoding: 'utf-8' }
+	);
 	console.log('Wrote jsonschema to ' + p);
 }
 
