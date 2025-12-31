@@ -1,9 +1,7 @@
 import { z } from 'zod';
 
 export const Artist = z.object({
-	handle: z.string(),
 	name: z.string(),
-	self: z.boolean().default(false),
 	links: z.record(
 		z.string(),
 		z.union([

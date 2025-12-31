@@ -1,4 +1,3 @@
-import { glob } from 'glob';
 import { $DATA } from './directories.ts';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
@@ -15,26 +14,18 @@ export async function artists() {
 	if (cached.cache && cached.version === nextVersion) {
 		return cached.cache;
 	}
-	const allArtists = await glob('./**/*.artist', { cwd: $DATA });
-	const documents = (
-		await Promise.all(
-			allArtists.map((fn) =>
-				fs
-					.readFile(path.join($DATA, fn), { encoding: 'utf-8' })
-					.then((text) => ({ filename: fn, text }))
-			)
-		)
-	)
-		.map(({ filename, text }) => ({ filename, obj: yaml.parse(text) }))
-		.map(({ filename, obj }) => {
-			return { filename, obj: Artist.parse(obj) };
-		})
-		.reduce<Record<string, z.infer<typeof Artist>>>(
-			(rec, { filename, obj }) => ({ ...rec, [filename]: obj }),
-			{}
+	let artists: ArtistCache;
+	try {
+		artists = yaml.parse(
+			await fs.readFile(path.join($DATA, 'artists.yaml'), { encoding: 'utf-8' })
 		);
+	} catch {
+		return {};
+	}
 
-	getCache().artistCache.cache = documents;
+	await Promise.all(Object.values(artists).map((v) => Artist.parseAsync(v)));
+
+	getCache().artistCache.cache = artists;
 	getCache().artistCache.version = nextVersion;
-	return documents;
+	return artists;
 }
