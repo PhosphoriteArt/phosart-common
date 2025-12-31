@@ -169,7 +169,7 @@ function validateSchema<T extends ThemeSettingsSchema>(
 
 export async function readThemeConfig<T extends ThemeSettingsSchema>(
 	schema: T
-): Promise<SettingsFor<T & BuiltinSettings> | null> {
+): Promise<SettingsFor<T & BuiltinSettings>> {
 	let text: string;
 	try {
 		text = await readFile($THEMECONFIG, { encoding: 'utf-8' });
