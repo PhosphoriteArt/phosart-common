@@ -1,6 +1,6 @@
 import { rename, stat } from 'node:fs/promises';
 import { $DATA } from './directories.ts';
-import path from 'node:path';
+import path from 'node:path/posix';
 import { createGunzip, createGzip } from 'node:zlib';
 import { PackrStream, UnpackrStream } from 'msgpackr';
 import { createReadStream, createWriteStream } from 'node:fs';

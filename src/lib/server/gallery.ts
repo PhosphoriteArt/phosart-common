@@ -1,6 +1,6 @@
 import { glob } from 'glob';
 import * as yaml from 'yaml';
-import * as path from 'node:path';
+import * as path from 'node:path/posix';
 import * as fs from 'node:fs/promises';
 import { z } from 'zod';
 import { Logger } from 'tslog';

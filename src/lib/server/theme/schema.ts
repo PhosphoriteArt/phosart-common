@@ -1,6 +1,6 @@
 import { writeFileSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
-import path from 'node:path';
+import path from 'node:path/posix';
 import z from 'zod';
 import { $DATA } from '../directories.ts';
 import { parse, stringify } from 'yaml';

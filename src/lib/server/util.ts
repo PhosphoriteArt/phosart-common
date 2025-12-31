@@ -1,6 +1,6 @@
 import * as fs from 'node:fs/promises';
 import * as crypto from 'node:crypto';
-import path from 'node:path';
+import path from 'node:path/posix';
 import { $DATA } from './directories.ts';
 import type { GalleryCache, RawGalleryCache } from './gallery.ts';
 import type { CharacterCache, RawCharacterCache } from './character.ts';

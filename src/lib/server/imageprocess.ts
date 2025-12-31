@@ -1,7 +1,7 @@
 import sharp, { type Sharp } from 'sharp';
 import { Logger } from 'tslog';
 import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
+import * as path from 'node:path/posix';
 import type { Source } from '../util/art.ts';
 import { getLogLevel, hashUrl } from './util.ts';
 import type { z } from 'zod';

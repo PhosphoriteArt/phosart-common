@@ -1,6 +1,6 @@
 import { $DATA } from './directories.ts';
 import * as fs from 'node:fs/promises';
-import * as path from 'node:path';
+import * as path from 'node:path/posix';
 import * as yaml from 'yaml';
 import type { z } from 'zod';
 import { Artist } from './models/Artist.ts';
