@@ -9,6 +9,7 @@ import { getLogLevel } from '../util.ts';
 const ThemeLogger = new Logger({ minLevel: getLogLevel() });
 
 const $THEMESCHEMA = path.resolve($DATA, '.theme-schema.json');
+const $TYPE = path.resolve($DATA, 'generated-schema.ts');
 const $THEMECONFIG = path.resolve($DATA, 'theme-config.yaml');
 const BLANK = `{
   "$schema": "https://raw.githubusercontent.com/PhosphoriteArt/phosart-common/refs/heads/main/settings.schema.json"
@@ -24,9 +25,10 @@ export const ZThemeSettingsSchema = z.record(
 
 export type ThemeSettingsSchema = z.infer<typeof ZThemeSettingsSchema>;
 
-const defaultSettings = {
+export const builtinSettings = {
 	defaultArtist: { type: 'string' }
 } as const satisfies ThemeSettingsSchema;
+export type BuiltinSettings = typeof builtinSettings;
 
 type MaterializedOptionFor<T extends ThemeSettingsSchema[string]> =
 	T extends z.infer<typeof ZColorOption>
@@ -56,11 +58,48 @@ export async function readThemeSchema<T extends ThemeSettingsSchema>(): Promise<
 			delete data['$schema'];
 		}
 		const settings = await ZThemeSettingsSchema.parseAsync(data);
+		await writeGeneratedSchema(settings);
 		return settings as T;
 	} catch (err) {
 		ThemeLogger.warn('Error parsing theme file:', err);
 		throw err;
 	}
+}
+
+function escape(token: string): string {
+	return token.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
+}
+async function writeGeneratedSchema<T extends ThemeSettingsSchema>(schema: T) {
+	let ts = `export interface ThemeSchema {`;
+
+	for (const [k, v] of Object.entries(schema)) {
+		switch (v.type) {
+			case 'color':
+				ts += `\n  "${escape(k)}": \`#\${string}\`;`;
+				break;
+			case 'selection': {
+				ts +=
+					`\n  "${escape(k)}": ` +
+					v.options
+						.map(escape)
+						.map((k) => `"${k}"`)
+						.join(' | ') +
+					';';
+				break;
+			}
+			case 'string':
+				ts += `\n  "${escape(k)}": string;`;
+				break;
+		}
+	}
+
+	if (Object.keys(schema).length === 0) {
+		ts = 'export type ThemeSchema = Record<string, never>;\n';
+	} else {
+		ts += '\n}\n';
+	}
+
+	await writeFile($TYPE, ts, { encoding: 'utf-8' });
 }
 
 function validateSchema<T extends ThemeSettingsSchema>(
@@ -130,7 +169,7 @@ function validateSchema<T extends ThemeSettingsSchema>(
 
 export async function readThemeConfig<T extends ThemeSettingsSchema>(
 	schema: T
-): Promise<SettingsFor<T & typeof defaultSettings> | null> {
+): Promise<SettingsFor<T & BuiltinSettings> | null> {
 	let text: string;
 	try {
 		text = await readFile($THEMECONFIG, { encoding: 'utf-8' });
@@ -141,7 +180,7 @@ export async function readThemeConfig<T extends ThemeSettingsSchema>(
 	}
 	try {
 		const doc = parse(text) ?? {};
-		if (validateSchema(Object.assign({}, defaultSettings, schema), doc)) {
+		if (validateSchema(Object.assign({}, builtinSettings, schema), doc)) {
 			return doc;
 		}
 

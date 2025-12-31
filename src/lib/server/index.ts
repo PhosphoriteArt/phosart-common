@@ -27,4 +27,12 @@ export { Image, Picture, Source } from './models/image.ts';
 export { clearCache } from './util.ts';
 export { getFastHash, readFastCache, flushFastCache, updateFastCache } from './fastcache.ts';
 
-export { readThemeConfig, readThemeSchema } from './theme/schema.ts';
+export {
+	readThemeConfig,
+	readThemeSchema,
+	type BuiltinSettings,
+	type SettingsFor,
+	type ThemeSettingsSchema,
+	ZThemeSettingsSchema,
+	builtinSettings
+} from './theme/schema.ts';
