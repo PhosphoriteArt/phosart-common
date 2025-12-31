@@ -46,7 +46,7 @@ export async function processVideoFastcache(
 	name: string
 ): Promise<string> {
 	const [prehash, mtime] = await getFastHash(fc, fullpath, relpath);
-	const [path, hash] = await processVideo(fullpath, name, prehash);
+	const [path, hash] = await doProcessVideo(fullpath, name, prehash);
 	if (!prehash) {
 		await updateFastCache(fc, fullpath, relpath, hash, mtime);
 	}
@@ -54,7 +54,11 @@ export async function processVideoFastcache(
 	return path;
 }
 
-export async function processVideo(
+export async function processVideo(url: string, name: string): Promise<string> {
+	return (await doProcessVideo(url, name, null))[0];
+}
+
+async function doProcessVideo(
 	url: string,
 	name: string,
 	prehash: string | null
@@ -74,7 +78,7 @@ export async function processImageFastcache(
 	relpath: string
 ): Promise<z.infer<typeof Picture>> {
 	const [prehash, mtime] = await getFastHash(fc, fullpath, relpath);
-	const [image, hash] = await processImage(fullpath, prehash);
+	const [image, hash] = await doProcessImage(fullpath, prehash);
 	if (!prehash) {
 		await updateFastCache(fc, fullpath, relpath, hash, mtime);
 	}
@@ -82,7 +86,11 @@ export async function processImageFastcache(
 	return image;
 }
 
-export async function processImage(
+export async function processImage(url: string): Promise<z.infer<typeof Picture>> {
+	return (await doProcessImage(url, null))[0];
+}
+
+async function doProcessImage(
 	url: string,
 	prehash: string | null
 ): Promise<[z.infer<typeof Picture>, string]> {
@@ -95,7 +103,7 @@ export async function processImage(
 	}
 	ImageProcessLog.debug('[IMAGE] Starting to process', url);
 	const image = sharp(url, { animated: true });
-	const details = await doProcessImage(url, image, h);
+	const details = await _doProcessImage(url, image, h);
 	ImageProcessLog.info('[IMAGE] Finished processing', url, details);
 
 	return [details, h];
@@ -115,7 +123,7 @@ function removeDuplicates(images: SavedImage[]): SavedImage[] {
 	return images;
 }
 
-async function doProcessImage(
+async function _doProcessImage(
 	url: string,
 	image: Sharp,
 	hash: string,
