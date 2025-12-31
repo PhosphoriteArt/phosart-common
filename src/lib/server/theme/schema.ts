@@ -24,9 +24,9 @@ export const ZThemeSettingsSchema = z.record(
 
 export type ThemeSettingsSchema = z.infer<typeof ZThemeSettingsSchema>;
 
-const defaultSettings: ThemeSettingsSchema = {
+const defaultSettings = {
 	defaultArtist: { type: 'string' }
-};
+} as const satisfies ThemeSettingsSchema;
 
 type MaterializedOptionFor<T extends ThemeSettingsSchema[string]> =
 	T extends z.infer<typeof ZColorOption>
