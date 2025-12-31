@@ -6,7 +6,7 @@ import { PackrStream, UnpackrStream } from 'msgpackr';
 import { createReadStream, createWriteStream } from 'node:fs';
 import { pipeline } from 'node:stream/promises';
 import { Logger } from 'tslog';
-import { getLogLevel } from './util.ts';
+import { getLogLevel, hash } from './util.ts';
 const FastcacheLogger = new Logger({ minLevel: getLogLevel() });
 
 export interface FastCache {
@@ -52,7 +52,7 @@ export async function updateFastCache(
 export async function flushFastCache(fc: FastCache) {
 	try {
 		const final = path.join($DATA, '.fastcache.pack.gz');
-		const tmp = final + '.tmp';
+		const tmp = final + '.tmp.' + hash({ time: Date.now() });
 		const ws = createWriteStream(tmp);
 		const gz = createGzip({ level: 9 });
 		const packr = new PackrStream();
