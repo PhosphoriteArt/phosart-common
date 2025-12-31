@@ -51,7 +51,11 @@ export async function readThemeSchema<T extends ThemeSettingsSchema>(): Promise<
 		text = BLANK;
 	}
 	try {
-		const settings = await ZThemeSettingsSchema.parseAsync(JSON.parse(text));
+		const data = JSON.parse(text);
+		if (typeof data === 'object') {
+			delete data['$schema'];
+		}
+		const settings = await ZThemeSettingsSchema.parseAsync(data);
 		return settings as T;
 	} catch (err) {
 		ThemeLogger.warn('Error parsing theme file:', err);
