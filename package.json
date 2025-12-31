@@ -3,7 +3,7 @@
 	"version": "0.0.1",
 	"scripts": {
 		"dev": "vite dev",
-		"build": "vite build && npm run prepack",
+		"build": "vite build && npm run prepack && WRITE_SCHEMA=1 node ./dist/server/theme/schema.js",
 		"preview": "vite preview",
 		"prepare": "(svelte-kit sync || echo '') && husky",
 		"prepack": "svelte-kit sync && svelte-package && publint",
