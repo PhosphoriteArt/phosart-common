@@ -6,7 +6,7 @@ import { getLogLevel } from './util.ts';
 import { readPack, writePack } from './pack.ts';
 const FastcacheLogger = new Logger({ minLevel: getLogLevel() });
 
-const $FASTCACHEPATH = path.join($DATA, '.fastcache.pack.gz');
+const $FASTCACHEPATH = () => path.join($DATA(), '.fastcache.pack.gz');
 
 export interface FastCache {
 	[relpath: string]: {
@@ -50,7 +50,7 @@ export async function updateFastCache(
 
 export async function flushFastCache(fc: FastCache) {
 	try {
-		await writePack($FASTCACHEPATH, fc);
+		await writePack($FASTCACHEPATH(), fc);
 	} catch (err) {
 		FastcacheLogger.warn('Failed to write fastcache', err);
 	}
@@ -58,7 +58,7 @@ export async function flushFastCache(fc: FastCache) {
 
 export async function readFastCache(): Promise<FastCache> {
 	try {
-		return await readPack($FASTCACHEPATH);
+		return await readPack($FASTCACHEPATH());
 	} catch (err) {
 		FastcacheLogger.warn('Failed to read fastcache', err);
 		return {};

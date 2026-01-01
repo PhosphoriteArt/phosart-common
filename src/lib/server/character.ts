@@ -50,7 +50,7 @@ export async function rawCharacters(): Promise<RawCharacterCache> {
 		return cached.cache;
 	}
 	const document = yaml.parse(
-		await fs.readFile(path.join($DATA, CHARACTER_PATH), { encoding: 'utf-8' })
+		await fs.readFile(path.join($DATA(), CHARACTER_PATH), { encoding: 'utf-8' })
 	);
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any

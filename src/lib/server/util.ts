@@ -21,7 +21,7 @@ export function relPath(startFile: string, nextFile: string) {
 	return out;
 }
 export function fullPath(startFile: string, nextFile: string) {
-	const out = path.join($DATA, path.dirname(startFile), nextFile);
+	const out = path.join($DATA(), path.dirname(startFile), nextFile);
 	return out;
 }
 
@@ -29,12 +29,12 @@ type FileStructure = {
 	[name: string]: FileStructure | string;
 };
 
-async function getStructureHash(scanPath: string = $ART): Promise<FileStructure> {
-	const list = await fs.readdir(scanPath, { withFileTypes: true });
+async function getStructureHash(scanPath?: string): Promise<FileStructure> {
+	const list = await fs.readdir(scanPath ?? $ART(), { withFileTypes: true });
 	const structure: FileStructure = {};
 
 	for (const element of list) {
-		const next = path.join(scanPath, element.name);
+		const next = path.join(scanPath ?? $ART(), element.name);
 		if (element.isDirectory()) {
 			structure[element.name] = await getStructureHash(next);
 		} else if (element.isFile() && /\.(gallery|character|yaml|yml)$/gi.test(element.name)) {

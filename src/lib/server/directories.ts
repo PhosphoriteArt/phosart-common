@@ -20,7 +20,12 @@ function tryFindRoot(start: string) {
 	return null;
 }
 
+let cachedRoot: string | null = null;
+
 function findRoot() {
+	if (cachedRoot) {
+		return cachedRoot;
+	}
 	let root: string | null = null;
 	if (process.env.PROJECT_ROOT) {
 		root = tryFindRoot(process.env.PROJECT_ROOT);
@@ -31,9 +36,10 @@ function findRoot() {
 		throw new Error('Failed to find root');
 	}
 
+	cachedRoot = root;
 	return root;
 }
 
-export const $ROOT = join(findRoot(), 'src');
-export const $DATA = join($ROOT, 'data');
-export const $PUBLIC = join($ROOT, '..', 'static', '_');
+export const $ROOT = () => join(findRoot(), 'src');
+export const $DATA = () => join($ROOT(), 'data');
+export const $PUBLIC = () => join($ROOT(), '..', 'static', '_');

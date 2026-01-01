@@ -36,7 +36,7 @@ const THUMBS = [160, 320];
 async function getPictureDetails(h: string): Promise<z.infer<typeof Picture> | null> {
 	try {
 		return JSON.parse(
-			await fs.readFile(path.join($PUBLIC, h, 'details.json'), { encoding: 'utf-8' })
+			await fs.readFile(path.join($PUBLIC(), h, 'details.json'), { encoding: 'utf-8' })
 		);
 	} catch {
 		return null;
@@ -69,7 +69,7 @@ async function doProcessVideo(
 ): Promise<[string, string]> {
 	const h = prehash ?? (await hashUrl(url));
 	name = name + path.extname(url);
-	const outputDir = path.join($PUBLIC, h);
+	const outputDir = path.join($PUBLIC(), h);
 	await fs.mkdir(outputDir, { recursive: true });
 	await fs.copyFile(url, path.join(outputDir, name));
 
@@ -197,7 +197,7 @@ async function _doProcessImage(
 		}
 	};
 
-	await fs.writeFile(path.join($PUBLIC, hash, 'details.json'), JSON.stringify(data, null, 4), {
+	await fs.writeFile(path.join($PUBLIC(), hash, 'details.json'), JSON.stringify(data, null, 4), {
 		encoding: 'utf-8'
 	});
 	ImageProcessLog.info('[IMAGE] Processed image ', hash);
@@ -211,7 +211,7 @@ async function doSaveImage(
 	tf: Transformation,
 	pages: number
 ): Promise<SavedImage> {
-	const base = path.join($PUBLIC, hash);
+	const base = path.join($PUBLIC(), hash);
 	await fs.mkdir(base, { recursive: true });
 	ImageProcessLog.silly('[IMAGE] Starting transformation of', url, 'to', tf);
 	return await new Promise<SavedImage>((resolve, reject) =>

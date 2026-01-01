@@ -8,9 +8,9 @@ import { Logger } from 'tslog';
 import { getLogLevel } from '../util.ts';
 const ThemeLogger = new Logger({ minLevel: getLogLevel() });
 
-const $THEMESCHEMA = path.resolve($DATA, '.theme-schema.json');
-const $TYPE = path.resolve($DATA, 'generated-schema.ts');
-const $THEMECONFIG = path.resolve($DATA, 'theme-config.yaml');
+const $THEMESCHEMA = () => path.resolve($DATA(), '.theme-schema.json');
+const $TYPE = () => path.resolve($DATA(), 'generated-schema.ts');
+const $THEMECONFIG = () => path.resolve($DATA(), 'theme-config.yaml');
 const BLANK = `{
   "$schema": "https://raw.githubusercontent.com/PhosphoriteArt/phosart-common/refs/heads/main/settings.schema.json"
 }`;
@@ -46,10 +46,10 @@ export type SettingsFor<T extends ThemeSettingsSchema> = {
 export async function readThemeSchema<T extends ThemeSettingsSchema>(): Promise<T> {
 	let text: string;
 	try {
-		text = await readFile($THEMESCHEMA, { encoding: 'utf-8' });
+		text = await readFile($THEMESCHEMA(), { encoding: 'utf-8' });
 	} catch (err) {
 		ThemeLogger.warn('Error reading theme file:', err, 'recreating');
-		await writeFile($THEMESCHEMA, BLANK, { encoding: 'utf-8' });
+		await writeFile($THEMESCHEMA(), BLANK, { encoding: 'utf-8' });
 		text = BLANK;
 	}
 	try {
@@ -99,7 +99,7 @@ async function writeGeneratedSchema<T extends ThemeSettingsSchema>(schema: T) {
 		ts += '\n}\n';
 	}
 
-	await writeFile($TYPE, ts, { encoding: 'utf-8' });
+	await writeFile($TYPE(), ts, { encoding: 'utf-8' });
 }
 
 export function validateSchema<T extends ThemeSettingsSchema>(
@@ -179,10 +179,10 @@ export async function readThemeConfig<T extends ThemeSettingsSchema>(
 ): Promise<SettingsFor<T & BuiltinSettings>> {
 	let text: string;
 	try {
-		text = await readFile($THEMECONFIG, { encoding: 'utf-8' });
+		text = await readFile($THEMECONFIG(), { encoding: 'utf-8' });
 	} catch (err) {
 		ThemeLogger.warn('Error reading theme file:', err, 'recreating');
-		await writeFile($THEMECONFIG, '', { encoding: 'utf-8' });
+		await writeFile($THEMECONFIG(), '', { encoding: 'utf-8' });
 		text = '';
 	}
 	try {
@@ -203,7 +203,7 @@ export async function writeThemeConfig<T extends ThemeSettingsSchema>(
 	config: SettingsFor<T & BuiltinSettings>
 ): Promise<void> {
 	if (validateSchema(schema, config)) {
-		await writeFile($THEMECONFIG, stringify(config), { encoding: 'utf-8' });
+		await writeFile($THEMECONFIG(), stringify(config), { encoding: 'utf-8' });
 	}
 }
 

@@ -17,7 +17,7 @@ export async function artists() {
 	let artists: ArtistCache;
 	try {
 		artists = yaml.parse(
-			await fs.readFile(path.join($DATA, 'artists.yaml'), { encoding: 'utf-8' })
+			await fs.readFile(path.join($DATA(), 'artists.yaml'), { encoding: 'utf-8' })
 		);
 	} catch {
 		return {};

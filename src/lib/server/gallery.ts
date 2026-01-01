@@ -152,12 +152,12 @@ export async function rawGalleries(): Promise<RawGalleryCache> {
 	if (cached.cache && cached.version === nextVersion) {
 		return cached.cache;
 	}
-	const allGalleries = await glob('./**/*.gallery', { cwd: $DATA });
+	const allGalleries = await glob('./**/*.gallery', { cwd: $DATA() });
 	const documents = (
 		await Promise.all(
 			allGalleries.map((fn) =>
 				fs
-					.readFile(path.join($DATA, fn), { encoding: 'utf-8' })
+					.readFile(path.join($DATA(), fn), { encoding: 'utf-8' })
 					.then((text) => ({ filename: fn, text }))
 			)
 		)
