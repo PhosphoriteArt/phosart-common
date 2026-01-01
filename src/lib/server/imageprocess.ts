@@ -8,7 +8,11 @@ import type { z } from 'zod';
 import { $PUBLIC } from './directories.ts';
 import type { Picture } from './models/image.ts';
 import { getFastHash, updateFastCache, type FastCache } from './fastcache.ts';
+import sharpPhash from 'sharp-phash';
 const ImageProcessLog = new Logger({ minLevel: getLogLevel() });
+
+const phash: typeof import('sharp-phash').default =
+	sharpPhash as unknown as typeof import('sharp-phash').default;
 
 type SourceInfo = Source;
 type ImageFormat = keyof sharp.FormatEnum;
@@ -155,13 +159,15 @@ async function _doProcessImage(
 			doSaveImage(url, hash, doTransformImage(image, tf), tf, meta.pages ?? 1)
 		)
 	).then(removeDuplicates);
-	const fullLqip = await doLQIP(image, { format: 'webp', width: LQIP_WIDTH });
-	const thumbLqip = await doLQIP(image, { format: 'webp', width: LQIP_WIDTH, height: LQIP_WIDTH });
+	const phPromise = phash(url);
+	const fullLqip = doLQIP(image, { format: 'webp', width: LQIP_WIDTH });
+	const thumbLqip = doLQIP(image, { format: 'webp', width: LQIP_WIDTH, height: LQIP_WIDTH });
 
 	const data = {
+		phash: await phPromise,
 		full: {
 			sha256: hash,
-			lqip: fullLqip,
+			lqip: await fullLqip,
 			sources: (await fulls).reduce<Record<string, SourceInfo[]>>(
 				(all, cur) => ({
 					...all,
@@ -176,7 +182,7 @@ async function _doProcessImage(
 		},
 		thumbnail: {
 			sha256: hash,
-			lqip: thumbLqip,
+			lqip: await thumbLqip,
 			sources: (await thumbs).reduce<Record<string, SourceInfo[]>>(
 				(all, cur) => ({
 					...all,
