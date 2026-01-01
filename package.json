@@ -85,6 +85,7 @@
 	],
 	"dependencies": {
 		"@fortawesome/fontawesome-free": "^7.1.0",
+		"async-sema": "^3.1.1",
 		"glob": "^13.0.0",
 		"msgpackr": "^1.11.8",
 		"rehype-sanitize": "^6.0.0",

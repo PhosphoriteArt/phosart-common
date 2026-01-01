@@ -9,7 +9,10 @@ import { $PUBLIC } from './directories.ts';
 import type { Picture } from './models/image.ts';
 import { getFastHash, updateFastCache, type FastCache } from './fastcache.ts';
 import sharpPhash from 'sharp-phash';
+import { Sema } from 'async-sema';
+import os from 'node:os';
 const ImageProcessLog = new Logger({ minLevel: getLogLevel() });
+const sema = new Sema(os.cpus().length, { capacity: 1000 });
 
 const phash: typeof import('sharp-phash').default =
 	sharpPhash as unknown as typeof import('sharp-phash').default;
@@ -105,12 +108,17 @@ async function doProcessImage(
 		ImageProcessLog.debug('[IMAGE] Found cached details for', url, h);
 		return [cached, h];
 	}
-	ImageProcessLog.debug('[IMAGE] Starting to process', url);
-	const image = sharp(url, { animated: true });
-	const details = await _doProcessImage(url, image, h);
-	ImageProcessLog.info('[IMAGE] Finished processing', url, details);
+	const tok = await sema.acquire();
+	try {
+		ImageProcessLog.debug('[IMAGE] Starting to process', url);
+		const image = sharp(url, { animated: true });
+		const details = await _doProcessImage(url, image, h);
+		ImageProcessLog.info('[IMAGE] Finished processing', url, details);
 
-	return [details, h];
+		return [details, h];
+	} finally {
+		sema.release(tok);
+	}
 }
 
 function removeDuplicates(images: SavedImage[]): SavedImage[] {

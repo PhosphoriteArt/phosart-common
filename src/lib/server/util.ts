@@ -89,7 +89,7 @@ export function clearCache() {
 	(global as any).__art_global_cache = null;
 }
 
-export function getLogLevel(defaultLevel: number = 3): number {
+export function getLogLevel(defaultLevel: number = 2): number {
 	try {
 		if (!process.env.LOG_LEVEL) {
 			return defaultLevel;
