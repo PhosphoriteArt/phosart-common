@@ -1,13 +1,12 @@
-import { rename, stat } from 'node:fs/promises';
+import { stat } from 'node:fs/promises';
 import { $DATA } from './directories.ts';
 import path from 'node:path/posix';
-import { createGunzip, createGzip } from 'node:zlib';
-import { PackrStream, UnpackrStream } from 'msgpackr';
-import { createReadStream, createWriteStream } from 'node:fs';
-import { pipeline } from 'node:stream/promises';
 import { Logger } from 'tslog';
-import { getLogLevel, hash } from './util.ts';
+import { getLogLevel } from './util.ts';
+import { readPack, writePack } from './pack.ts';
 const FastcacheLogger = new Logger({ minLevel: getLogLevel() });
+
+const $FASTCACHEPATH = path.join($DATA, '.fastcache.pack.gz');
 
 export interface FastCache {
 	[relpath: string]: {
@@ -51,17 +50,7 @@ export async function updateFastCache(
 
 export async function flushFastCache(fc: FastCache) {
 	try {
-		const final = path.join($DATA, '.fastcache.pack.gz');
-		const tmp = final + '.tmp.' + hash({ time: Date.now() });
-		const ws = createWriteStream(tmp);
-		const gz = createGzip({ level: 9 });
-		const packr = new PackrStream();
-		const p = pipeline(packr, gz, ws);
-		packr.end(fc);
-
-		await p;
-
-		await rename(tmp, final);
+		await writePack($FASTCACHEPATH, fc);
 	} catch (err) {
 		FastcacheLogger.warn('Failed to write fastcache', err);
 	}
@@ -69,16 +58,7 @@ export async function flushFastCache(fc: FastCache) {
 
 export async function readFastCache(): Promise<FastCache> {
 	try {
-		const gunzip = createGunzip();
-		const unpackr = new UnpackrStream();
-		const rs = createReadStream(path.join($DATA, '.fastcache.pack.gz'));
-		const data = new Promise<FastCache>((resolve) => {
-			unpackr.once('data', resolve);
-		});
-
-		await pipeline(rs, gunzip, unpackr);
-
-		return await data;
+		return await readPack($FASTCACHEPATH);
 	} catch (err) {
 		FastcacheLogger.warn('Failed to read fastcache', err);
 		return {};
