@@ -1,4 +1,4 @@
-import { join, dirname } from 'node:path/posix';
+import { join, dirname } from 'node:path';
 import * as fs from 'node:fs';
 
 function tryFindRoot(start: string) {
