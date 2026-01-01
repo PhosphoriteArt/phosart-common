@@ -171,7 +171,7 @@ export async function rawGalleries(): Promise<RawGalleryCache> {
 			return { filename, obj: RawGallery.parse(obj) };
 		})
 		.reduce<Record<FileName, RawGalleryT>>(
-			(rec, { filename, obj }) => ({ ...rec, [filename]: obj }),
+			(rec, { filename, obj }) => ({ ...rec, [filename.replaceAll(path.sep, '/')]: obj }),
 			{}
 		);
 
