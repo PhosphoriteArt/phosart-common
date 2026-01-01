@@ -1,6 +1,6 @@
 import { $DATA } from './directories.ts';
 import * as fs from 'node:fs/promises';
-import * as path from 'node:path/posix';
+import * as path from 'node:path';
 import * as yaml from 'yaml';
 import { FullCharacter, RawCharacter } from './models/Character.ts';
 import type { z } from 'zod';

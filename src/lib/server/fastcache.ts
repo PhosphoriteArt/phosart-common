@@ -1,6 +1,6 @@
 import { stat } from 'node:fs/promises';
 import { $DATA } from './directories.ts';
-import path from 'node:path/posix';
+import path from 'node:path';
 import { Logger } from 'tslog';
 import { getLogLevel } from './util.ts';
 import { readPack, writePack } from './pack.ts';
