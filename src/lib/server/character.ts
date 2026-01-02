@@ -7,6 +7,8 @@ import type { z } from 'zod';
 import { processImageFastcache } from './imageprocess.ts';
 import { cacheVersion, getCache, fullPath, relPath } from './util.ts';
 import { flushFastCache, readFastCache, type FastCache } from './fastcache.ts';
+import { galleries } from './gallery.ts';
+import { normalizeCharacter, type NormalizedCharacter } from '../util/art.ts';
 
 export type CharacterCache = Record<string, z.infer<typeof FullCharacter>>;
 export type RawCharacterCache = Record<string, z.infer<typeof RawCharacter>>;
@@ -91,4 +93,21 @@ export async function characters(): Promise<CharacterCache> {
 	getCache().characterCache.cache = resolved;
 	getCache().characterCache.version = nextVersion;
 	return resolved;
+}
+
+export async function getAllCharacters(): Promise<Array<NormalizedCharacter>> {
+	const all = await characters();
+	const mapped: NormalizedCharacter[] = Object.values(await galleries())
+		.flatMap((g) => g.pieces)
+		.flatMap((p) => p.characters)
+		.flatMap((ch) => normalizeCharacter(ch, all))
+		.concat(Object.values(all).map((ch) => normalizeCharacter(ch.name, all)));
+
+	// Collapse by name, from pair
+	const record: Record<string, NormalizedCharacter> = {};
+	for (const m of mapped) {
+		record[`${m.name}\x00${m.from}`] = m;
+	}
+
+	return Object.values(record);
 }

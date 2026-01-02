@@ -5,6 +5,8 @@ import * as yaml from 'yaml';
 import type { z } from 'zod';
 import { Artist } from './models/Artist.ts';
 import { cacheVersion, getCache } from './util.ts';
+import { normalizeArtist, type NormalizedArtist } from '../util/art.ts';
+import { galleries } from './gallery.ts';
 
 export type ArtistCache = Record<string, z.infer<typeof Artist>>;
 
@@ -28,4 +30,21 @@ export async function artists() {
 	getCache().artistCache.cache = artists;
 	getCache().artistCache.version = nextVersion;
 	return artists;
+}
+
+export async function getAllArtists(): Promise<Array<NormalizedArtist>> {
+	const all = await artists();
+	const mapped: NormalizedArtist[] = Object.values(await galleries())
+		.flatMap((g) => g.pieces)
+		.flatMap((p) => p.artist)
+		.flatMap((a) => normalizeArtist(a, all))
+		.concat(Object.values(all).flatMap((a) => normalizeArtist(a.name, all)));
+
+	// Collapse by name
+	const record: Record<string, NormalizedArtist> = {};
+	for (const m of mapped) {
+		record[m.name] = m;
+	}
+
+	return Object.values(record);
 }
