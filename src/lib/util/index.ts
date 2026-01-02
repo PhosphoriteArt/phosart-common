@@ -1,4 +1,4 @@
-export { no4K, normalizeArtist, onlyHighRes } from './art.ts';
+export { no4K, normalizeArtist, normalizeCharacter, onlyHighRes } from './art.ts';
 export type {
 	ArtPiece,
 	Artist,
@@ -13,7 +13,8 @@ export type {
 	BaseArtist,
 	BaseArtPiece,
 	BaseGallery,
-	ExtendedGallery
+	ExtendedGallery,
+	NormalizedCharacter
 } from './art.ts';
 export { useArtist, useArtists, useArtistsContext } from './artistcontext.svelte.ts';
 export { useCharacterContext, useCharacters } from './charactercontext.svelte.ts';

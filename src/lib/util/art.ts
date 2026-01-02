@@ -17,6 +17,7 @@ import type {
 	ExtendedGallery as ZExtendedGallery
 } from '../server/models/Gallery.ts';
 import type { ArtistCache } from '../server/artist.ts';
+import type { CharacterCache } from '../server/character.ts';
 
 export type RawGallery = z.infer<typeof ZRawGallery>;
 export type BaseGallery = z.infer<typeof ZBaseGallery>;
@@ -31,6 +32,21 @@ export type Picture = z.infer<typeof ZPicture>;
 export type Image = z.infer<typeof ZImage>;
 export type Source = z.infer<typeof ZSource>;
 export type CharacterRef = ArtPiece['characters'][number];
+
+export interface NormalizedCharacter {
+	name: string;
+	from: string | null;
+	info: Character | null;
+}
+export function normalizeCharacter(
+	ref: CharacterRef,
+	characters?: CharacterCache
+): NormalizedCharacter {
+	if (typeof ref === 'string') {
+		return { name: ref, from: null, info: characters?.[ref] ?? null };
+	}
+	return { ...ref, info: null };
+}
 
 export interface NormalizedArtist {
 	name: string;
