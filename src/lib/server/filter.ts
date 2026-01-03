@@ -12,7 +12,7 @@ function filterOne(piece: ArtPiece, by: ResourceRef, negated: boolean): boolean 
 
 	switch (by.type) {
 		case 'artist': {
-			const artists = normalizeArtist(by.resource);
+			const artists = normalizeArtist(piece.artist);
 			let hasArtist = artists.some(
 				(artist) => artist.name.toLowerCase() === by.resource.name.toLowerCase()
 			);
