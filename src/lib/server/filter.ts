@@ -42,7 +42,7 @@ function filterOne(piece: ArtPiece, by: ResourceRef, negated: boolean): boolean 
 			return isPiece;
 		}
 		case 'tag': {
-			let hasTag = piece.tags.map((t) => t.toLowerCase()).includes(by.resource);
+			let hasTag = piece.tags.map((t) => t.toLowerCase()).includes(by.resource.toLowerCase());
 			if (negated) {
 				hasTag = !hasTag;
 			}
