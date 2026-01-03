@@ -115,7 +115,7 @@ async function writeGeneratedSchema<T extends ThemeSettingsSchema>(schema: T) {
 				break;
 			case 'string-list':
 			case 'tag-list':
-				ts += `\n. "${escape(k)}": string[]`;
+				ts += `\n  "${escape(k)}": string[]`;
 				break;
 		}
 	}
