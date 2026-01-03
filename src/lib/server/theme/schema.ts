@@ -169,6 +169,24 @@ function doValidateSchema<T extends ThemeSettingsSchema>(
 					}
 					break;
 				case 'selection':
+					if (v.multi) {
+						if (
+							!Array.isArray(docval) ||
+							docval.some((item) => typeof item !== 'string' || !v.options.includes(item))
+						) {
+							throw new Error(
+								"document '" +
+									JSON.stringify(doc) +
+									"' @ key '" +
+									k +
+									"' does not have a valid selection list at that key (instead has value '" +
+									v +
+									"') and thus does not conform to schema " +
+									JSON.stringify(schema)
+							);
+						}
+						break;
+					}
 					if (typeof docval !== 'string' || !v.options.includes(docval)) {
 						throw new Error(
 							"document '" +
@@ -190,6 +208,21 @@ function doValidateSchema<T extends ThemeSettingsSchema>(
 								"' @ key '" +
 								k +
 								"' does not have a valid string at that key (instead has value '" +
+								v +
+								"') and thus does not conform to schema " +
+								JSON.stringify(schema)
+						);
+					}
+					break;
+				case 'string-list':
+				case 'tag-list':
+					if (!Array.isArray(docval) || docval.some((item) => typeof item !== 'string')) {
+						throw new Error(
+							"document '" +
+								JSON.stringify(doc) +
+								"' @ key '" +
+								k +
+								"' does not have a valid string list at that key (instead has value '" +
 								v +
 								"') and thus does not conform to schema " +
 								JSON.stringify(schema)
