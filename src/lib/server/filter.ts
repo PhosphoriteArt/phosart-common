@@ -54,7 +54,7 @@ function filterOne(piece: ArtPiece, by: ResourceRef, negated: boolean): boolean 
 export function filter(
 	gallery: ArtPiece[] | Record<string, ArtPiece>,
 	by: ResourceRef,
-	{ negated, sorted }: { negated?: boolean; sorted?: boolean }
+	{ negated, sorted }: { negated?: boolean; sorted?: boolean } = {}
 ): ArtPiece[] {
 	if (!Array.isArray(gallery)) gallery = Object.values(gallery);
 
