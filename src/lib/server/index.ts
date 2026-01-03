@@ -9,7 +9,14 @@ export {
 } from './character.ts';
 export { $DATA as $ART, $PUBLIC, $ROOT } from './directories.ts';
 export { filter } from './filter.ts';
-export { type GalleryCache, type RawGalleryCache, galleries, rawGalleries } from './gallery.ts';
+export {
+	type GalleryCache,
+	type RawGalleryCache,
+	galleries,
+	rawGalleries,
+	allPieces,
+	getPieceBySlug
+} from './gallery.ts';
 export {
 	processImage,
 	processVideo,

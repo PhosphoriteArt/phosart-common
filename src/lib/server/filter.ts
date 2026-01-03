@@ -1,40 +1,69 @@
-import { normalizeArtist, type ArtPiece, type Artist, type Character } from '../util/art.ts';
+import {
+	normalizeArtist,
+	normalizeCharacter,
+	type ArtPiece,
+	type ResourceRef
+} from '../util/art.ts';
 
-type Filterable = Pick<Artist, 'name' | 'type'> | Pick<Character, 'name' | 'type'> | string;
-
-function filterOne(piece: ArtPiece, by: Filterable) {
-	if (typeof by === 'string') {
-		const tags = piece.tags?.map((tag) => tag.toLowerCase()) ?? [];
-		if (by.startsWith('!')) {
-			if (tags.includes(by.toLowerCase().substring(1))) return false;
-		} else if (!tags.includes(by.toLowerCase())) {
-			return false;
-		}
-	} else if (by.type === 'Artist') {
-		const artists = normalizeArtist(piece.artist);
-		return artists.some((artist) => artist.name.toLowerCase() === by.name.toLowerCase());
-	} else if (by.type === 'Character') {
-		if (
-			!piece.characters
-				?.map((ref) => (typeof ref === 'string' ? ref : ref.name))
-				.map((ref) => ref.toLowerCase())
-				.includes(by.name.toLowerCase())
-		)
-			return false;
+function filterOne(piece: ArtPiece, by: ResourceRef, negated: boolean): boolean {
+	if (!by.type || !by.resource) {
+		return false;
 	}
-	return true;
+
+	switch (by.type) {
+		case 'artist': {
+			const artists = normalizeArtist(by.resource);
+			let hasArtist = artists.some(
+				(artist) => artist.name.toLowerCase() === by.resource.name.toLowerCase()
+			);
+			if (negated) {
+				hasArtist = !hasArtist;
+			}
+			return hasArtist;
+		}
+		case 'character': {
+			const characters = normalizeCharacter(piece.characters);
+			let hasCharacter = characters.some(
+				(ch) =>
+					ch.name.toLowerCase() === by.resource.name.toLowerCase() &&
+					(ch.from?.toLowerCase() === by.resource.from?.toLowerCase() ||
+						(!ch.from && !by.resource.from))
+			);
+			if (negated) {
+				hasCharacter = !hasCharacter;
+			}
+			return hasCharacter;
+		}
+		case 'piece': {
+			let isPiece = by.resource.slug === piece.slug;
+			if (negated) {
+				isPiece = !isPiece;
+			}
+			return isPiece;
+		}
+		case 'tag': {
+			let hasTag = piece.tags.map((t) => t.toLowerCase()).includes(by.resource);
+			if (negated) {
+				hasTag = !hasTag;
+			}
+			return hasTag;
+		}
+	}
 }
 
 export function filter(
 	gallery: ArtPiece[] | Record<string, ArtPiece>,
-	by: Filterable | Array<Filterable>
+	by: ResourceRef,
+	{ negated, sorted }: { negated?: boolean; sorted?: boolean }
 ): ArtPiece[] {
 	if (!Array.isArray(gallery)) gallery = Object.values(gallery);
 
-	return gallery
-		.filter((piece) => {
-			if (Array.isArray(by)) return by.every((predicate) => filterOne(piece, predicate));
-			return filterOne(piece, by);
-		})
-		.sort((a, b) => b.date.getTime() - a.date.getTime());
+	const results = gallery.filter((piece) => {
+		return filterOne(piece, by, negated ?? false);
+	});
+
+	if (!sorted) {
+		return results;
+	}
+	return results.sort((a, b) => b.date.getTime() - a.date.getTime());
 }

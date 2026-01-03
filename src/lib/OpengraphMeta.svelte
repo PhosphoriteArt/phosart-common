@@ -1,21 +1,7 @@
 <script lang="ts" module>
 	import { asString } from './Postcard/ArtistLink.svelte';
-	import {
-		normalizeArtist,
-		type ArtPiece,
-		type NormalizedArtist,
-		type NormalizedCharacter
-	} from './util/art.ts';
+	import { normalizeArtist, type ResourceRef } from './util/art.ts';
 	import { useLibraryConfig } from './util/phosart_config.svelte.ts';
-
-	type Tag = string;
-
-	export type ResourceRef =
-		| { type: 'character'; resource: NormalizedCharacter }
-		| { type: 'artist'; resource: NormalizedArtist }
-		| { type: 'tag'; resource: Tag }
-		| { type: 'piece'; resource: ArtPiece }
-		| { type: undefined; resource: undefined };
 
 	interface OpengraphMeta {
 		title: string | null;

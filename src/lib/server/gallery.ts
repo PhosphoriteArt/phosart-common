@@ -23,6 +23,8 @@ import {
 	getLogLevel
 } from './util.ts';
 import { flushFastCache, readFastCache, type FastCache } from './fastcache.ts';
+import type { ArtPiece } from '../util/art.ts';
+import { asRecord } from '../util/util.ts';
 const GalleryLogger = new Logger({ minLevel: getLogLevel() });
 
 type FileName = string;
@@ -205,4 +207,15 @@ export async function galleries(doRetry: boolean = true) {
 			throw e;
 		}
 	}
+}
+
+export async function allPieces(): Promise<Record<string, ArtPiece>> {
+	return asRecord(
+		Object.values(await galleries()).flatMap((p) => p.pieces),
+		(p) => p.slug
+	);
+}
+
+export async function getPieceBySlug(slug: string): Promise<ArtPiece | null> {
+	return (await allPieces())[slug] ?? null;
 }

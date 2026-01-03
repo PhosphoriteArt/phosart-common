@@ -1,6 +1,6 @@
 {
 	"name": "phosart-common",
-	"version": "0.3.0",
+	"version": "0.4.0",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run prepack && WRITE_SCHEMA=1 node ./dist/server/theme/schema.js",
@@ -86,6 +86,7 @@
 	"dependencies": {
 		"@fortawesome/fontawesome-free": "^7.1.0",
 		"async-sema": "^3.1.1",
+		"fuzzysort": "^3.1.0",
 		"glob": "^13.0.0",
 		"msgpackr": "^1.11.8",
 		"rehype-sanitize": "^6.0.0",

@@ -41,7 +41,18 @@ export interface NormalizedCharacter {
 export function normalizeCharacter(
 	ref: CharacterRef,
 	characters?: CharacterCache
-): NormalizedCharacter {
+): NormalizedCharacter;
+export function normalizeCharacter(
+	ref: Array<CharacterRef>,
+	characters?: CharacterCache
+): Array<NormalizedCharacter>;
+export function normalizeCharacter(
+	ref: CharacterRef | Array<CharacterRef>,
+	characters?: CharacterCache
+): NormalizedCharacter | Array<NormalizedCharacter> {
+	if (Array.isArray(ref)) {
+		return ref.map((ch) => normalizeCharacter(ch, characters));
+	}
 	if (typeof ref === 'string') {
 		return { name: ref, from: null, info: characters?.[ref] ?? null };
 	}
@@ -116,3 +127,10 @@ function bestSource(sources: Image['sources']): [string, z.infer<typeof ZSource>
 	}
 	return [key, bestImage.source];
 }
+
+export type ResourceRef =
+	| { type: 'character'; resource: NormalizedCharacter }
+	| { type: 'artist'; resource: NormalizedArtist }
+	| { type: 'tag'; resource: string }
+	| { type: 'piece'; resource: ArtPiece }
+	| { type: undefined; resource: undefined };

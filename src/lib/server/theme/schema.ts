@@ -212,7 +212,9 @@ function writeJsonSchema() {
 	writeFileSync(
 		p,
 		JSON.stringify(
-			z.union([ZThemeSettingsSchema, z.object({ $schema: z.string() })]).toJSONSchema()
+			z.intersection(z.object({ $schema: z.string() }), ZThemeSettingsSchema).toJSONSchema(),
+			null,
+			2
 		),
 		{ encoding: 'utf-8' }
 	);
