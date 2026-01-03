@@ -34,6 +34,7 @@ export type ChipOptionsByType = {
 };
 
 export interface LibraryConfig {
+	siteName: string;
 	gallery?: {
 		DefaultCardComponent?: NonNullable<ComponentProps<typeof FullGallery>['CardComponent']> | null;
 		DefaultPieceComponent?: NonNullable<ComponentProps<typeof Gallery>['PieceComponent']> | null;
@@ -42,6 +43,7 @@ export interface LibraryConfig {
 }
 
 const DEFAULT_CONFIG: LibraryConfig = {
+	siteName: '',
 	gallery: {
 		DefaultCardComponent: undefined, // TODO
 		DefaultPieceComponent: undefined // TODO
