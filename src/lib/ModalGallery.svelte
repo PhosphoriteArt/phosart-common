@@ -22,8 +22,6 @@
 </script>
 
 <script lang="ts">
-	import { run, stopPropagation } from 'svelte/legacy';
-
 	import type { ArtPiece } from './util/art.ts';
 	import Modal from './Modal.svelte';
 	import { onMount } from 'svelte';
@@ -56,18 +54,32 @@
 			}
 		};
 
-		if (browser && window.location.hash && !isAnyModelGalleryOpen()) {
-			const foundSelected = pieces.findIndex((piece) => '#' + piece.slug === window.location.hash);
-			if (foundSelected !== -1) {
-				selected = foundSelected;
-				isGalleryOpen.open = true;
+		const hashchange = (hce: { oldURL?: string; newURL: string }) => {
+			const hash = new URL(hce.newURL).hash.replace(/^#/, '');
+			if (browser) {
+				console.log('H ->', hash);
+				const foundSelected = pieces.findIndex((piece) => piece.slug === hash);
+				if (!isAnyModelGalleryOpen()) {
+					if (foundSelected !== -1) {
+						selected = foundSelected;
+					}
+				} else if (isGalleryOpen.open) {
+					if (!hash || hash == '#') {
+						selected = null;
+					} else if (foundSelected !== -1) {
+						selected = foundSelected;
+					}
+				}
 			}
-		}
+		};
+		hashchange({ newURL: window.location.href });
 
+		window.addEventListener('hashchange', hashchange);
 		document.body.addEventListener('keydown', handler);
 
 		hashUpdateReady = true;
 		return () => {
+			window.removeEventListener('hashchange', hashchange);
 			document.body.removeEventListener('keydown', handler);
 		};
 	});
@@ -77,15 +89,16 @@
 
 		if (isAnyModelGalleryOpen() === false && window.location.hash) {
 			window.location.hash = '##';
-		} else if (selected !== null) {
-			window.location.hash = '#' + pieces[selected].slug;
+		} else if (selected !== null && pieces[selected]) {
+			console.log('H <-', pieces[selected].slug);
+			window.location.hash = '#' + encodeURIComponent(pieces[selected].slug);
 		}
 	}
 
-	run(() => {
+	$effect.pre(() => {
 		isGalleryOpen.open = selected !== null;
 	});
-	run(() => {
+	$effect.pre(() => {
 		if (hashUpdateReady) {
 			updateHash(selected);
 		}
@@ -98,9 +111,10 @@
 			role="button"
 			tabindex={-1}
 			class="fa-solid fa-close hoverable close-button"
-			onclick={stopPropagation(() => {
+			onclick={(e) => {
+				e.stopPropagation();
 				selected = null;
-			})}
+			}}
 			onkeypress={() => {
 				selected = null;
 			}}
