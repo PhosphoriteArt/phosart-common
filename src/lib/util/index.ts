@@ -24,6 +24,6 @@ export { formatDate } from './date.ts';
 export { markdown } from './markdown.ts';
 export { smoothScroll } from './smoothscroll.ts';
 export { setLibraryConfig, type LibraryConfig } from './phosart_config.svelte.ts';
-export { asRecord, deduplicateBy } from './util.ts';
+export { asRecord, multiRecordBy, deduplicateBy } from './util.ts';
 export { asTree, pathView } from './tree.ts';
 export type { FolderElement, GalleryElement, GalleryTree, TreeElement } from './tree.ts';

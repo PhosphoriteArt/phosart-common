@@ -19,6 +19,15 @@ export function asRecord<T>(
 
 	return record;
 }
+
+export function multiRecordBy<T>(arr: T[], key: (el: T) => string): Record<string, T[]> {
+	return asRecord(
+		arr.map((v) => [v]),
+		(arr) => key(arr[0]),
+		(a1, a2) => [...a1, ...a2]
+	);
+}
+
 export function deduplicateBy<T>(
 	arr: T[],
 	key: (el: T) => string,
