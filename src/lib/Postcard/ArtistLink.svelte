@@ -34,7 +34,7 @@
 	{@const link = Object.values(artist.info?.links ?? {})[0] ?? null}
 	{#if link}
 		<a target="_blank" rel="noreferrer nofollow noopener" href={link} style="font-weight: 700;">
-			@{artist.name}
+			@{artist.info?.name || artist.name}
 		</a>
 	{:else if artist}
 		<span style="font-weight: 700;">

@@ -54,7 +54,7 @@ const DEFAULT_CONFIG: LibraryConfig = {
 				action: { makeHref: (artist) => `/artist/${artist.name}` }
 			},
 			tag: { action: { makeHref: (tag) => `/tag/${tag}` } },
-			character: { action: { makeHref: (ch) => `/characters/${ch}` } },
+			character: { action: { makeHref: (ch) => `/characters/${ch.name}` } },
 			permalink: { action: { makeHref: (pl) => `/piece/${pl.slug}` } }
 		}
 	}
