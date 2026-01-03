@@ -51,7 +51,7 @@ const DEFAULT_CONFIG: LibraryConfig = {
 	modal: {
 		chipOptionsByType: {
 			artist: {
-				action: { makeHref: (artist) => `/artist/${artist.info?.name ?? artist.name}` }
+				action: { makeHref: (artist) => `/artist/${artist.name}` }
 			},
 			tag: { action: { makeHref: (tag) => `/tag/${tag}` } },
 			character: { action: { makeHref: (ch) => `/characters/${ch}` } },
