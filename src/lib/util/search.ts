@@ -20,7 +20,7 @@ export function executeSearch(query: string, pieces: ArtPiece[]): ArtPiece[] {
 	}));
 
 	const results = fz.go(query, searchObj, {
-		keys: ['name', 'description', 'alt', 'tags', 'characters', 'artists'],
+		keys: ['name', 'characters', 'artists', 'tags', 'alt', 'description'],
 		threshold: 0.3
 	});
 

@@ -1,26 +1,24 @@
 <script lang="ts">
 	import '@fortawesome/fontawesome-free/css/all.min.css';
 
-	import type { Artist, CharacterRef } from '../../util/art.ts';
+	import type { Artist, NormalizedCharacter } from '../../util/art.ts';
 	import { useArtists } from '../../util/artistcontext.svelte.ts';
-	import { useCharacters } from '../../util/charactercontext.svelte.ts';
 	import { useChipConfig } from '../../util/phosart_config.svelte.ts';
 
 	interface Props {
-		character: CharacterRef;
+		character: NormalizedCharacter;
 	}
 
 	let { character }: Props = $props();
 	const artists = useArtists();
-	const characters = useCharacters();
 
-	let handle = $derived(typeof character === 'string' ? character : character.name);
-	let characterObj = $derived(characters[handle] ?? null);
-	let artist = $derived(typeof character === 'string' ? null : character.from);
+	let cname = $derived(character.name);
+	let characterObj = $derived(character.info ?? null);
+	let artist = $derived(character.from);
 	let artistObj: Artist | null = $derived(artist ? (artists[artist] ?? null) : null);
 	let artistUrl = $derived(artistObj?.links ? Object.values(artistObj.links)[0] : null);
 
-	let name = $derived(characterObj?.name ?? handle);
+	let name = $derived(characterObj?.name ?? cname);
 
 	const config = useChipConfig('character');
 	const href = $derived(config?.action?.makeHref?.(character));

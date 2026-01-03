@@ -1,7 +1,7 @@
 import type Gallery from '../Gallery.svelte';
 import type FullGallery from '../FullGallery.svelte';
 import { createContext, type ComponentProps } from 'svelte';
-import type { ArtPiece, CharacterRef, NormalizedArtist } from './art.ts';
+import type { ArtPiece, NormalizedArtist, NormalizedCharacter } from './art.ts';
 
 const [get, set] = createContext<LibraryConfig | undefined>();
 
@@ -22,7 +22,7 @@ type ChipOptionBase<T> =
 type ChipOptionTypes = {
 	tag: string;
 	artist: NormalizedArtist;
-	character: CharacterRef;
+	character: NormalizedCharacter;
 	permalink: ArtPiece;
 };
 

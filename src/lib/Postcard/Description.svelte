@@ -2,10 +2,12 @@
 	import '@fortawesome/fontawesome-free/css/all.min.css';
 
 	import { markdown } from '../util/markdown.ts';
-	import { type ArtPiece, normalizeArtist } from '../util/art.ts';
+	import { type ArtPiece, normalizeArtist, normalizeCharacter } from '../util/art.ts';
 
 	import { formatDate } from '../util/date.ts';
 	import Chip from './Chip.svelte';
+	import { useCharacters } from '../util/charactercontext.svelte.ts';
+	import { useArtists } from '../util/artistcontext.svelte.ts';
 
 	interface Props {
 		piece: ArtPiece;
@@ -22,6 +24,9 @@
 		selectedAlt,
 		onselectalt = undefined
 	}: Props = $props();
+
+	const characters = useCharacters();
+	const artists = useArtists();
 </script>
 
 <div class="description-inner" class:showing-description={visible}>
@@ -90,11 +95,11 @@
 		</div>
 
 		<div style="font-size: 0.7em" class="tags">
-			{#each normalizeArtist(piece.artist) as artist (artist.name)}
+			{#each normalizeArtist(piece.artist, artists) as artist (artist.name)}
 				<Chip type="artist" data={artist} />
 			{/each}
 			{#each piece.characters ?? [] as character, i (i)}
-				<Chip type="character" data={character} />
+				<Chip type="character" data={normalizeCharacter(character, characters)} />
 			{/each}
 			{#if piece.tags}
 				{#each piece.tags as tag (tag)}
