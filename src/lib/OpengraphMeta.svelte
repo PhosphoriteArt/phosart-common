@@ -51,7 +51,7 @@
 			case 'piece': {
 				base.title = resource.resource.name;
 				const artists = normalizeArtist(resource.resource.artist);
-				if (artists) {
+				if (artists.length > 0) {
 					base.title += ` by ${asString(artists)}`;
 				}
 				base.description = resource.resource.description || resource.resource.alt;
