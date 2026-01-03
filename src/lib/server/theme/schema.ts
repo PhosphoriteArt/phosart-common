@@ -28,7 +28,7 @@ const ZMultiSelectionOption = z.object({
 });
 const ZStringOption = z.object({ type: z.literal('string') });
 const ZTagsOption = z.object({ type: z.literal('tag-list') });
-const ZStringList = z.object({ type: z.literal('tag-list') });
+const ZStringList = z.object({ type: z.literal('string-list') });
 export const ZThemeSettingsSchema = z.record(
 	z.string(),
 	z.union([
