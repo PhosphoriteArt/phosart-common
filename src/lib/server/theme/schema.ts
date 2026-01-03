@@ -102,17 +102,20 @@ async function writeGeneratedSchema<T extends ThemeSettingsSchema>(schema: T) {
 				ts += `\n  "${escape(k)}": \`#\${string}\`;`;
 				break;
 			case 'selection': {
-				ts +=
-					`\n  "${escape(k)}": ` +
-					v.options
-						.map(escape)
-						.map((k) => `"${k}"`)
-						.join(' | ') +
-					';';
+				const opts = v.options
+					.map(escape)
+					.map((k) => `"${k}"`)
+					.join(' | ');
+				const typ = v.multi ? `Array<${opts}>` : opts;
+				ts += `\n  "${escape(k)}": ` + typ + ';';
 				break;
 			}
 			case 'string':
 				ts += `\n  "${escape(k)}": string;`;
+				break;
+			case 'string-list':
+			case 'tag-list':
+				ts += `\n. "${escape(k)}": string[]`;
 				break;
 		}
 	}
