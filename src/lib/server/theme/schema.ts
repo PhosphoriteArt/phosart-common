@@ -16,11 +16,29 @@ const BLANK = `{
 }`;
 
 const ZColorOption = z.object({ type: z.literal('color') });
-const ZSelectionOption = z.object({ type: z.literal('selection'), options: z.array(z.string()) });
+const ZSelectionOption = z.object({
+	type: z.literal('selection'),
+	options: z.array(z.string()),
+	multi: z.literal(false).optional()
+});
+const ZMultiSelectionOption = z.object({
+	type: z.literal('selection'),
+	options: z.array(z.string()),
+	multi: z.literal(true)
+});
 const ZStringOption = z.object({ type: z.literal('string') });
+const ZTagsOption = z.object({ type: z.literal('tag-list') });
+const ZStringList = z.object({ type: z.literal('tag-list') });
 export const ZThemeSettingsSchema = z.record(
 	z.string(),
-	z.union([ZColorOption, ZSelectionOption, ZStringOption])
+	z.union([
+		ZColorOption,
+		ZSelectionOption,
+		ZMultiSelectionOption,
+		ZTagsOption,
+		ZStringList,
+		ZStringOption
+	])
 );
 
 export type ThemeSettingsSchema = z.infer<typeof ZThemeSettingsSchema>;
@@ -35,9 +53,15 @@ type MaterializedOptionFor<T extends ThemeSettingsSchema[string]> =
 		? `#${string}`
 		: T extends z.infer<typeof ZSelectionOption>
 			? [...T['options']]
-			: T extends z.infer<typeof ZStringOption>
-				? string
-				: never;
+			: T extends z.infer<typeof ZMultiSelectionOption>
+				? Array<[...T['options']]>
+				: T extends z.infer<typeof ZStringList>
+					? Array<string>
+					: T extends z.infer<typeof ZTagsOption>
+						? Array<string>
+						: T extends z.infer<typeof ZStringOption>
+							? string
+							: never;
 
 export type SettingsFor<T extends ThemeSettingsSchema> = {
 	[K in keyof T]: MaterializedOptionFor<T[K]>;

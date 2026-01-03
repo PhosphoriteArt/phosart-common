@@ -41,9 +41,56 @@
 								"items": {
 									"type": "string"
 								}
+							},
+							"multi": {
+								"type": "boolean",
+								"const": false
 							}
 						},
 						"required": ["type", "options"],
+						"additionalProperties": false
+					},
+					{
+						"type": "object",
+						"properties": {
+							"type": {
+								"type": "string",
+								"const": "selection"
+							},
+							"options": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							},
+							"multi": {
+								"type": "boolean",
+								"const": true
+							}
+						},
+						"required": ["type", "options", "multi"],
+						"additionalProperties": false
+					},
+					{
+						"type": "object",
+						"properties": {
+							"type": {
+								"type": "string",
+								"const": "tag-list"
+							}
+						},
+						"required": ["type"],
+						"additionalProperties": false
+					},
+					{
+						"type": "object",
+						"properties": {
+							"type": {
+								"type": "string",
+								"const": "tag-list"
+							}
+						},
+						"required": ["type"],
 						"additionalProperties": false
 					},
 					{
