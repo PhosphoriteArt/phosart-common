@@ -32,7 +32,7 @@
 	const info = $derived.by(() => {
 		switch (props.type) {
 			case 'artist':
-				return props.data.info ? `@${props.data.name}` : props.data.name;
+				return props.data.info ? `@${props.data.info.name || props.data.name}` : props.data.name;
 			case 'character':
 				return '';
 			case 'permalink':

@@ -6,9 +6,9 @@
 			const artist = artists[i];
 			const hasLink = !!artist.info?.links?.[0];
 			if (hasLink) {
-				s += '@' + artist.name;
+				s += '@' + (artist.info?.name || artist.name);
 			} else {
-				s += artist.name;
+				s += artist.info?.name || artist.name;
 			}
 			if (i < artists.length - 2) {
 				s += ', ';
