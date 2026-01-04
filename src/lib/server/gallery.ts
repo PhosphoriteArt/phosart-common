@@ -12,12 +12,7 @@ import {
 	RawGallery
 } from './models/Gallery.ts';
 import { $DATA } from './directories.ts';
-import {
-	cleanUnusedHashes,
-	getUnusedHashes,
-	processImageFastcache,
-	processVideoFastcache
-} from './imageprocess.ts';
+import { processImageFastcache, processVideoFastcache } from './imageprocess.ts';
 import {
 	cacheVersion,
 	clearCache,
@@ -93,7 +88,7 @@ async function resolvePieceReferences(
 ): Promise<FullArtPieceT> {
 	const relpath = relPath(filename, piece.image);
 	const fullpath = fullPath(filename, piece.image);
-	const image = await processImageFastcache(fc, fullpath, relpath);
+	const image = await processImageFastcache(fc, fullpath, relpath, { position: piece.position });
 
 	const alts = await Promise.all(
 		piece.alts?.map(async (alt) => ({
@@ -101,7 +96,8 @@ async function resolvePieceReferences(
 			image: await processImageFastcache(
 				fc,
 				fullPath(filename, alt.image),
-				relPath(filename, alt.image)
+				relPath(filename, alt.image),
+				{ position: piece.position }
 			),
 			video: alt.video
 				? {
@@ -207,7 +203,6 @@ export async function galleries(doRetry: boolean = true) {
 		await flushFastCache(fc);
 		getCache().galleryCache.cache = out;
 		getCache().galleryCache.version = nextVersion;
-		await cleanUnusedHashes(await getUnusedHashes());
 		return out;
 	} catch (e) {
 		if (doRetry) {

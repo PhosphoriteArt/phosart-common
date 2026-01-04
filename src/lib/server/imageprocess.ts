@@ -33,6 +33,11 @@ interface Transformation {
 	position?: string;
 }
 
+interface ProcessOptions {
+	forceKeep?: boolean;
+	position?: string;
+}
+
 const LQIP_WIDTH = 64;
 const FORMATS: Array<ImageFormat> = ['avif', 'webp'];
 const WIDTHS = [640, 960, 1280, 1920, 3840];
@@ -45,11 +50,24 @@ export function clearProcessedHashes() {
 	processedHashes = new Set();
 }
 export async function getUnusedHashes(): Promise<ReadonlySet<string>> {
-	const pubdir = new Set(await fs.readdir($PUBLIC(), { withFileTypes: false, recursive: false }));
+	const eligible = new Set<string>();
+	const pubdir = await fs.readdir($PUBLIC(), { withFileTypes: true, recursive: false });
 
-	return pubdir.difference(processedHashes);
+	await Promise.all(
+		pubdir.map(async (dirent) => {
+			if (!dirent.isDirectory()) {
+				return;
+			}
+			const ents = await fs.readdir(path.resolve(path.join($PUBLIC(), dirent.name)));
+			if (!ents.includes('.keep.mark')) {
+				eligible.add(dirent.name);
+			}
+		})
+	);
+
+	return eligible.difference(processedHashes);
 }
-export async function cleanUnusedHashes(unused: ReadonlySet<string>) {
+export async function deleteHashes(unused: ReadonlySet<string>) {
 	if (unused.size === 0) {
 		return;
 	}
@@ -72,6 +90,9 @@ export async function cleanUnusedHashes(unused: ReadonlySet<string>) {
 		}
 	}
 }
+export async function cleanUnusedHashes() {
+	await deleteHashes(await getUnusedHashes());
+}
 
 async function getPictureDetails(h: string): Promise<z.infer<typeof Picture> | null> {
 	try {
@@ -87,10 +108,11 @@ export async function processVideoFastcache(
 	fc: FastCache,
 	fullpath: string,
 	relpath: string,
-	name: string
+	name: string,
+	processOptions: ProcessOptions = {}
 ): Promise<string> {
 	const [prehash, mtime] = await getFastHash(fc, fullpath, relpath);
-	const [path, hash] = await doProcessVideo(fullpath, name, prehash);
+	const [path, hash] = await doProcessVideo(fullpath, name, prehash, processOptions);
 	if (!prehash) {
 		await updateFastCache(fc, fullpath, relpath, hash, mtime);
 	}
@@ -105,7 +127,8 @@ export async function processVideo(url: string, name: string): Promise<string> {
 async function doProcessVideo(
 	url: string,
 	name: string,
-	prehash: string | null
+	prehash: string | null,
+	processOptions: ProcessOptions = {}
 ): Promise<[string, string]> {
 	const h = prehash ?? (await hashUrl(url));
 	processedHashes.add(h);
@@ -114,6 +137,9 @@ async function doProcessVideo(
 	const outputDir = path.join($PUBLIC(), h);
 	await fs.mkdir(outputDir, { recursive: true });
 	await fs.copyFile(url, path.join(outputDir, name));
+	if (processOptions?.forceKeep) {
+		await fs.writeFile(path.join(outputDir, '.keep.mark'), '');
+	}
 
 	return [`/_/${h}/${name}`, h];
 }
@@ -121,10 +147,11 @@ async function doProcessVideo(
 export async function processImageFastcache(
 	fc: FastCache,
 	fullpath: string,
-	relpath: string
+	relpath: string,
+	processOptions: ProcessOptions = {}
 ): Promise<z.infer<typeof Picture>> {
 	const [prehash, mtime] = await getFastHash(fc, fullpath, relpath);
-	const [image, hash] = await doProcessImage(fullpath, prehash);
+	const [image, hash] = await doProcessImage(fullpath, prehash, processOptions);
 	if (!prehash) {
 		await updateFastCache(fc, fullpath, relpath, hash, mtime);
 	}
@@ -132,17 +159,20 @@ export async function processImageFastcache(
 	return image;
 }
 
-export async function processImage(url: string): Promise<z.infer<typeof Picture>> {
-	return (await doProcessImage(url, null))[0];
+export async function processImage(
+	url: string,
+	processOptions: ProcessOptions = {}
+): Promise<z.infer<typeof Picture>> {
+	return (await doProcessImage(url, null, processOptions))[0];
 }
 
 async function doProcessImage(
 	url: string,
-	prehash: string | null
+	prehash: string | null,
+	processOptions: ProcessOptions = {}
 ): Promise<[z.infer<typeof Picture>, string]> {
 	const h = prehash ?? (await hashUrl(url));
 	processedHashes.add(h);
-
 	ImageProcessLog.silly('[IMAGE] Got image with hash', h);
 	const cached = await getPictureDetails(h);
 	if (cached) {
@@ -153,9 +183,8 @@ async function doProcessImage(
 	try {
 		ImageProcessLog.debug('[IMAGE] Starting to process', url);
 		const image = sharp(url, { animated: true });
-		const details = await _doProcessImage(url, image, h);
+		const details = await _doProcessImage(url, image, h, processOptions);
 		ImageProcessLog.info('[IMAGE] Finished processing', url, details);
-
 		return [details, h];
 	} finally {
 		sema.release(tok);
@@ -180,7 +209,7 @@ async function _doProcessImage(
 	url: string,
 	image: Sharp,
 	hash: string,
-	position?: string
+	processOptions: ProcessOptions = {}
 ): Promise<z.infer<typeof Picture>> {
 	const meta = await image.metadata();
 	const fullTransformations: Transformation[] =
@@ -190,12 +219,23 @@ async function _doProcessImage(
 					{ format: 'webp', width: meta.width! }
 				]
 			: FORMATS.flatMap((format) =>
-					WIDTHS.flatMap((width) => ({ format, width, position }) satisfies Transformation)
+					WIDTHS.flatMap(
+						(width) =>
+							({ format, width, position: processOptions?.position }) satisfies Transformation
+					)
 				);
 	const thumbnailTransformations: Transformation[] = (
 		meta.format === 'gif' ? ['gif' as ImageFormat, 'webp' as ImageFormat] : FORMATS
 	).flatMap((format) =>
-		THUMBS.flatMap((width) => ({ format, width, height: width, position }) satisfies Transformation)
+		THUMBS.flatMap(
+			(width) =>
+				({
+					format,
+					width,
+					height: width,
+					position: processOptions?.position
+				}) satisfies Transformation
+		)
 	);
 
 	const fulls = Promise.all(
@@ -209,8 +249,17 @@ async function _doProcessImage(
 		)
 	).then(removeDuplicates);
 	const phPromise = phash(url);
-	const fullLqip = doLQIP(image, { format: 'webp', width: LQIP_WIDTH });
-	const thumbLqip = doLQIP(image, { format: 'webp', width: LQIP_WIDTH, height: LQIP_WIDTH });
+	const fullLqip = doLQIP(image, {
+		format: 'webp',
+		width: LQIP_WIDTH,
+		position: processOptions?.position
+	});
+	const thumbLqip = doLQIP(image, {
+		format: 'webp',
+		width: LQIP_WIDTH,
+		height: LQIP_WIDTH,
+		position: processOptions?.position
+	});
 
 	const data = {
 		phash: await phPromise,
@@ -249,6 +298,10 @@ async function _doProcessImage(
 	await fs.writeFile(path.join($PUBLIC(), hash, 'details.json'), JSON.stringify(data, null, 4), {
 		encoding: 'utf-8'
 	});
+	if (processOptions?.forceKeep) {
+		await fs.writeFile(path.join($PUBLIC(), hash, '.keep.mark'), '');
+	}
+
 	ImageProcessLog.info('[IMAGE] Processed image ', hash);
 	return data;
 }
