@@ -87,7 +87,7 @@
 						"properties": {
 							"type": {
 								"type": "string",
-								"const": "tag-list"
+								"const": "string-list"
 							}
 						},
 						"required": ["type"],

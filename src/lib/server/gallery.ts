@@ -12,7 +12,12 @@ import {
 	RawGallery
 } from './models/Gallery.ts';
 import { $DATA } from './directories.ts';
-import { processImageFastcache, processVideoFastcache } from './imageprocess.ts';
+import {
+	cleanUnusedHashes,
+	getUnusedHashes,
+	processImageFastcache,
+	processVideoFastcache
+} from './imageprocess.ts';
 import {
 	cacheVersion,
 	clearCache,
@@ -190,6 +195,11 @@ export async function galleries(doRetry: boolean = true) {
 	}
 
 	const documents = await rawGalleries();
+	Object.values(documents).forEach((g) => {
+		if ('pieces' in g) {
+			g.pieces = g.pieces.filter((p) => !p.deindexed);
+		}
+	});
 
 	try {
 		const fc = await readFastCache();
@@ -197,6 +207,7 @@ export async function galleries(doRetry: boolean = true) {
 		await flushFastCache(fc);
 		getCache().galleryCache.cache = out;
 		getCache().galleryCache.version = nextVersion;
+		await cleanUnusedHashes(await getUnusedHashes());
 		return out;
 	} catch (e) {
 		if (doRetry) {
@@ -218,4 +229,8 @@ export async function allPieces(): Promise<Record<string, ArtPiece>> {
 
 export async function getPieceBySlug(slug: string): Promise<ArtPiece | null> {
 	return (await allPieces())[slug] ?? null;
+}
+
+export function hasNsfw(gallery: ArtPiece[]): boolean {
+	return gallery.some((p) => p.nsfw);
 }

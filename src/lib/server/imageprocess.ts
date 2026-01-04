@@ -17,6 +17,8 @@ const sema = new Sema(os.cpus().length, { capacity: 1000 });
 const phash: typeof import('sharp-phash').default =
 	sharpPhash as unknown as typeof import('sharp-phash').default;
 
+let processedHashes = new Set<string>();
+
 type SourceInfo = Source;
 type ImageFormat = keyof sharp.FormatEnum;
 
@@ -35,6 +37,41 @@ const LQIP_WIDTH = 64;
 const FORMATS: Array<ImageFormat> = ['avif', 'webp'];
 const WIDTHS = [640, 960, 1280, 1920, 3840];
 const THUMBS = [160, 320];
+
+export function getProcessedHashes(): ReadonlySet<string> {
+	return processedHashes;
+}
+export function clearProcessedHashes() {
+	processedHashes = new Set();
+}
+export async function getUnusedHashes(): Promise<ReadonlySet<string>> {
+	const pubdir = new Set(await fs.readdir($PUBLIC(), { withFileTypes: false, recursive: false }));
+
+	return pubdir.difference(processedHashes);
+}
+export async function cleanUnusedHashes(unused: ReadonlySet<string>) {
+	if (unused.size === 0) {
+		return;
+	}
+	ImageProcessLog.warn('Cleaning up generated directory:', unused.size, 'unused folders found...');
+	const respub = path.resolve($PUBLIC());
+	for (const hash of unused) {
+		const resolved = path.resolve(path.join($PUBLIC(), hash));
+		if (!resolved.startsWith(respub)) {
+			ImageProcessLog.warn(
+				'Tried to clean hash at path',
+				resolved,
+				'which is not a subdirectory of public',
+				respub,
+				'??'
+			);
+		} else {
+			ImageProcessLog.debug('Deleting', resolved, '...');
+			await fs.rm(resolved, { recursive: true, force: true });
+			ImageProcessLog.info('Deleted unused generated directory', resolved, '...');
+		}
+	}
+}
 
 async function getPictureDetails(h: string): Promise<z.infer<typeof Picture> | null> {
 	try {
@@ -71,6 +108,8 @@ async function doProcessVideo(
 	prehash: string | null
 ): Promise<[string, string]> {
 	const h = prehash ?? (await hashUrl(url));
+	processedHashes.add(h);
+
 	name = name + path.extname(url);
 	const outputDir = path.join($PUBLIC(), h);
 	await fs.mkdir(outputDir, { recursive: true });
@@ -102,6 +141,8 @@ async function doProcessImage(
 	prehash: string | null
 ): Promise<[z.infer<typeof Picture>, string]> {
 	const h = prehash ?? (await hashUrl(url));
+	processedHashes.add(h);
+
 	ImageProcessLog.silly('[IMAGE] Got image with hash', h);
 	const cached = await getPictureDetails(h);
 	if (cached) {

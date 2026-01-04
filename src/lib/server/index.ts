@@ -21,7 +21,8 @@ export {
 	processImage,
 	processVideo,
 	processImageFastcache,
-	processVideoFastcache
+	processVideoFastcache,
+	clearProcessedHashes
 } from './imageprocess.ts';
 
 export { Artist } from './models/Artist.ts';
