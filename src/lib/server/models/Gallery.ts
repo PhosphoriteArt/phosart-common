@@ -44,7 +44,9 @@ function ArtPiece<T extends z.ZodTypeAny>(imageType: T) {
 					image: imageType,
 					alt: z.string(),
 					description: z.string().optional(),
-					video: Video.optional()
+					video: Video.optional(),
+					deindexed: z.boolean().optional(),
+					nsfw: z.boolean().optional()
 				})
 			)
 			.optional(),

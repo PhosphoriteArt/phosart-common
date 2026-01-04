@@ -194,7 +194,19 @@ export async function galleries(doRetry: boolean = true) {
 		Object.entries(await rawGalleries())
 			.map(([path, g]) => {
 				if ('pieces' in g) {
-					g = { pieces: g.pieces.filter((p) => !p.deindexed) };
+					g = {
+						pieces: g.pieces
+							.map((p) => {
+								if (p.deindexed) {
+									return null;
+								}
+								if (p.alts) {
+									p = { ...p, alts: p.alts.filter((a) => !a.deindexed) };
+								}
+								return p;
+							})
+							.filter(truthy)
+					};
 					if (g.pieces.length === 0) {
 						return null;
 					}
