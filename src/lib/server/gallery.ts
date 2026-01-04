@@ -190,12 +190,24 @@ export async function galleries(doRetry: boolean = true) {
 		return cached.cache;
 	}
 
-	const documents = await rawGalleries();
-	Object.values(documents).forEach((g) => {
-		if ('pieces' in g) {
-			g.pieces = g.pieces.filter((p) => !p.deindexed);
-		}
-	});
+	const documents = Object.fromEntries(
+		Object.entries(await rawGalleries())
+			.map(([path, g]) => {
+				if ('pieces' in g) {
+					g = { pieces: g.pieces.filter((p) => !p.deindexed) };
+					if (g.pieces.length === 0) {
+						return null;
+					}
+					return [path, g];
+				} else {
+					if (g.$extends.length === 0) {
+						return null;
+					}
+					return [path, g];
+				}
+			})
+			.filter(truthy)
+	);
 
 	try {
 		const fc = await readFastCache();
@@ -213,6 +225,10 @@ export async function galleries(doRetry: boolean = true) {
 			throw e;
 		}
 	}
+}
+
+function truthy<T>(t: T | null | undefined): t is T {
+	return !!t;
 }
 
 export async function allPieces(): Promise<Record<string, ArtPiece>> {
