@@ -1,6 +1,6 @@
 import type { z } from 'zod';
 
-import type { FullCharacter } from '../server/models/Character.ts';
+import type { FullCharacter, RawCharacter } from '../server/models/Character.ts';
 import type { Artist as ZArtist } from '../server/models/Artist.ts';
 import type {
 	Picture as ZPicture,
@@ -23,6 +23,7 @@ export type RawGallery = z.infer<typeof ZRawGallery>;
 export type BaseGallery = z.infer<typeof ZBaseGallery>;
 export type ExtendedGallery = z.infer<typeof ZExtendedGallery>;
 export type Gallery = z.infer<typeof FullGallery>;
+export type BaseCharacter = z.infer<typeof RawCharacter>;
 export type Character = z.infer<typeof FullCharacter>;
 export type BaseArtist = z.infer<typeof ZBaseArtist>;
 export type Artist = z.infer<typeof ZArtist>;

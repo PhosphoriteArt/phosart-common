@@ -15,7 +15,8 @@ export type {
 	BaseGallery,
 	ExtendedGallery,
 	NormalizedCharacter,
-	ResourceRef
+	ResourceRef,
+	BaseCharacter
 } from './art.ts';
 export { executeSearch } from './search.ts';
 export { useArtist, useArtists, useArtistsContext } from './artistcontext.svelte.ts';
