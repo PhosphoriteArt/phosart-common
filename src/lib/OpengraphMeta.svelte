@@ -77,6 +77,7 @@
 		// If unspecified, the following will be inferred from above
 		Partial<OpengraphMeta> & {
 			setPageTitle?: boolean;
+			transformSrc?: (src: string) => string;
 		};
 
 	const {
@@ -87,10 +88,15 @@
 		description: userDescription,
 		title: userTitle,
 		width: userWidth,
+		transformSrc: userTransformSrc,
 		...resourceRef
 	}: Props = $props();
 
 	const config = useLibraryConfig();
+
+	const transformSrc = $derived(
+		userTransformSrc ?? config.defaultTransformSrc ?? ((s: string) => s)
+	);
 
 	const inferred = getMeta(resourceRef, config.siteName);
 	const height = $derived(userHeight ?? inferred.height);
@@ -116,7 +122,7 @@
 			<meta property="og:description" content={description} />
 		{/if}
 		{#if image && width && height}
-			<meta property="og:image" content={image} />
+			<meta property="og:image" content={transformSrc(image)} />
 			<meta property="og:image:width" content={String(width)} />
 			<meta property="og:image:height" content={String(height)} />
 			<meta name="twitter:card" content="summary_large_image" />
