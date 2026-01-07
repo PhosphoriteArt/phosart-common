@@ -44,7 +44,8 @@ export const ZThemeSettingsSchema = z.record(
 export type ThemeSettingsSchema = z.infer<typeof ZThemeSettingsSchema>;
 
 export const builtinSettings = {
-	defaultArtist: { type: 'string' }
+	defaultArtist: { type: 'string' },
+	websiteMode: { type: 'selection', options: ['static', 'vercel'] }
 } as const satisfies ThemeSettingsSchema;
 export type BuiltinSettings = typeof builtinSettings;
 
