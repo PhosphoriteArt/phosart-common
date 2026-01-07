@@ -11,6 +11,7 @@
 		nolqip?: boolean;
 		onloaded?: () => void;
 		loading?: boolean;
+		transformSrc?: (src: string) => string;
 	}
 
 	let {
@@ -20,7 +21,8 @@
 		video = undefined,
 		controls = false,
 		nolqip = false,
-		loading = $bindable(true)
+		loading = $bindable(true),
+		transformSrc = (s) => s
 	}: Props = $props();
 
 	let showBackground = $state(true);
@@ -32,9 +34,7 @@
 	let src = $derived(highRes ? onlyHighRes(picture) : no4K(picture));
 
 	let background = $derived(
-		!nolqip && src.lqip && showBackground
-			? `url(${src.lqip?.src}) no-repeat center/contain`
-			: 'none'
+		!nolqip && src.lqip && showBackground ? `url(${src.lqip.src}) no-repeat center/contain` : 'none'
 	);
 
 	$effect(() => {
@@ -115,12 +115,12 @@
 		<picture style="background: {background}; aspect-ratio: {src.fallback.w} / {src.fallback.h};">
 			{#each Object.entries(src.sources) as [format, images] (format)}
 				<source
-					srcset={images.map((img) => `${img.src} ${img.w}w`).join(', ')}
+					srcset={images.map((img) => `${transformSrc(img.src)} ${img.w}w`).join(', ')}
 					type={'image/' + format}
 				/>
 			{/each}
 			<img
-				src={src.fallback.src}
+				src={transformSrc(src.fallback.src)}
 				{alt}
 				use:onload
 				loading="lazy"
