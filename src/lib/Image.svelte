@@ -115,7 +115,7 @@
 			playsinline
 			use:onload
 		>
-			<source src={video} type="video/mp4" />
+			<source src={transformSrc(video)} type="video/mp4" />
 		</video>
 	{:else}
 		<picture style="background: {background}; aspect-ratio: {src.fallback.w} / {src.fallback.h};">
