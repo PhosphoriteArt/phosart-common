@@ -2,6 +2,7 @@
 	import { onlyHighRes, type Image as ImageModel, no4K } from './util/art.ts';
 	import { untrack } from 'svelte';
 	import { isHighRes } from './HighResContext.svelte';
+	import { useLibraryConfig } from './util/phosart_config.svelte.ts';
 
 	interface Props {
 		picture: ImageModel;
@@ -22,8 +23,13 @@
 		controls = false,
 		nolqip = false,
 		loading = $bindable(true),
-		transformSrc = (s) => s
+		transformSrc: userTransformSrc
 	}: Props = $props();
+
+	const config = useLibraryConfig();
+	const transformSrc = $derived(
+		userTransformSrc ?? config.defaultTransformSrc ?? ((s: string) => s)
+	);
 
 	let showBackground = $state(true);
 	let loadingMeta = $state(true);

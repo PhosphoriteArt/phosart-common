@@ -40,6 +40,7 @@ export interface LibraryConfig {
 		DefaultPieceComponent?: NonNullable<ComponentProps<typeof Gallery>['PieceComponent']> | null;
 	};
 	modal?: { chipOptionsByType?: ChipOptionsByType | null };
+	defaultTransformSrc?: (src: string) => string;
 }
 
 const DEFAULT_CONFIG: LibraryConfig = {
