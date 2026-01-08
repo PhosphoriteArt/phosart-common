@@ -63,7 +63,7 @@ export function normalizeCharacter(
 export interface NormalizedArtist {
 	name: string;
 	anonymous: boolean;
-	info: Artist | null;
+	info: (Artist & { handle: string }) | null;
 }
 function normalizeSingleArtist(
 	a: string | { name: string; anonymous: boolean },
@@ -75,7 +75,7 @@ function normalizeSingleArtist(
 	return {
 		name,
 		anonymous: typeof a === 'string' ? false : a.anonymous,
-		info: foundArtist
+		info: foundArtist ? { ...foundArtist, handle: name } : null
 	};
 }
 
