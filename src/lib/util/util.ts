@@ -35,3 +35,36 @@ export function deduplicateBy<T>(
 ): T[] {
 	return Object.values(asRecord(arr, key, combine));
 }
+
+export function sveltekitAbsolutePath(
+	resolveRelative: (s: string) => string,
+	getCurrentPath: () => string
+): (s: string) => string {
+	return (s) => {
+		const pagepath = getCurrentPath().split('/').slice(0, -1);
+		const rel = resolveRelative(s).split('/');
+
+		if (rel[0]?.length === 0) {
+			// It's absolute
+			return rel.join('/');
+		}
+
+		const backs = rel.filter((r) => r == '..').length;
+
+		const resolved = pagepath
+			.slice(0, pagepath.length - backs)
+			.concat(rel.slice(backs))
+			.join('/');
+
+		return resolved;
+	};
+}
+
+export function sveltekitAnchoredPath(
+	origin: string,
+	resolveRelative: (s: string) => string,
+	getCurrentPath: () => string
+): (s: string) => string {
+	const abspath = sveltekitAbsolutePath(resolveRelative, getCurrentPath);
+	return (s) => `${origin}${abspath(s)}`;
+}
