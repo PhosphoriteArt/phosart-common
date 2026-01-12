@@ -41,6 +41,7 @@ export interface LibraryConfig {
 	};
 	modal?: { chipOptionsByType?: ChipOptionsByType | null };
 	defaultTransformSrc?: (src: string) => string;
+	origin?: string;
 }
 
 const DEFAULT_CONFIG: LibraryConfig = {

@@ -118,8 +118,9 @@
 		{#if description}
 			<meta property="og:description" content={description} />
 		{/if}
-		{#if image && width && height}
-			<meta property="og:image" content={transformSrc(image)} />
+		{#if image && width && height && config.origin}
+			{@const url = config.origin + transformSrc(image)}
+			<meta property="og:image" content={url} />
 			<meta property="og:image:width" content={String(width)} />
 			<meta property="og:image:height" content={String(height)} />
 			<meta name="twitter:card" content="summary_large_image" />
