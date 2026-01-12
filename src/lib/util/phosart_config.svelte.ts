@@ -41,6 +41,7 @@ export interface LibraryConfig {
 	};
 	modal?: { chipOptionsByType?: ChipOptionsByType | null };
 	defaultTransformSrc?: (src: string) => string;
+	getPage?: () => string;
 	origin?: string;
 }
 

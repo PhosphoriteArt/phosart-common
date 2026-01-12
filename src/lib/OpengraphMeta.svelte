@@ -107,7 +107,7 @@
 <svelte:head>
 	{#if resourceRef.type && resourceRef.resource}
 		<meta property="og:type" content="website" />
-		<meta property="og:url" content={config.origin ?? ''} />
+		<meta property="og:url" content={(config.origin ?? '') + (config.getPage?.() ?? '')} />
 		{#if siteName}
 			<meta property="og:site_name" content={siteName} />
 		{/if}
