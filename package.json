@@ -1,6 +1,6 @@
 {
 	"name": "@phosart/common",
-	"version": "0.4.31",
+	"version": "0.4.32",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run prepack && WRITE_SCHEMA=1 node ./dist/server/theme/schema.js",

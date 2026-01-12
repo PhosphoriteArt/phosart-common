@@ -35,10 +35,7 @@
 				if (resource.resource.from) {
 					base.title += ` by @${resource.resource.from}`;
 				}
-				const image =
-					resource.resource.info?.thumbnail?.full.fallback ??
-					resource.resource.info?.picture.full.fallback ??
-					null;
+				const image = resource.resource.info?.picture.full.fallback ?? null;
 
 				base.image = image?.src ?? null;
 				base.width = image?.w ?? null;
