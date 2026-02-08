@@ -4,9 +4,11 @@ import * as path from 'node:path';
 import * as yaml from 'yaml';
 import type { z } from 'zod';
 import { Artist } from './models/Artist.ts';
-import { cacheVersion, getCache } from './util.ts';
+import { cacheVersion, getCache, getLogLevel } from './util.ts';
 import { normalizeArtist, type NormalizedArtist } from '../util/art.ts';
 import { galleries } from './gallery.ts';
+import { Logger } from 'tslog';
+const ArtistLog = new Logger({ minLevel: getLogLevel() });
 
 export type ArtistCache = Record<string, z.infer<typeof Artist>>;
 
@@ -25,7 +27,23 @@ export async function artists() {
 		return {};
 	}
 
-	await Promise.all(Object.values(artists).map((v) => Artist.parseAsync(v)));
+	(await Promise.all(Object.values(artists).map((v) => Artist.parseAsync(v)))).map((a) => ({
+		...a,
+		links: Object.fromEntries(
+			Object.entries(a.links).map(([k, v]) => {
+				if (!v.includes('://')) {
+					v = 'https://' + v;
+				}
+
+				try {
+					v = new URL(v).toString();
+				} catch (e: unknown) {
+					ArtistLog.error(`Failed to process URL for artist @${k}:`, e);
+				}
+				return [k, v];
+			})
+		)
+	}));
 
 	getCache().artistCache.cache = artists;
 	getCache().artistCache.version = nextVersion;
