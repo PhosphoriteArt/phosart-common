@@ -3,6 +3,7 @@
 
 	import type { ArtPiece } from '../util/art.ts';
 	import ImageView from './ImageView.svelte';
+	import { useLibraryConfig } from '../util/phosart_config.svelte.ts';
 
 	interface Props {
 		piece: ArtPiece;
@@ -38,7 +39,9 @@
 	let w = $derived(piece.image.full.fallback.w * scalingFactor);
 	let h = $derived(piece.image.full.fallback.h * scalingFactor + 50);
 
-	let nameInHeader = $derived(w > 500);
+	let config = useLibraryConfig();
+
+	let nameInHeader = $derived(!config.modal?.hideNames && w > 500);
 </script>
 
 <div class="image-section">

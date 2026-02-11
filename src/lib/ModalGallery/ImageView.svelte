@@ -7,6 +7,7 @@
 	import Headline from '../Postcard/Headline.svelte';
 	import Description from '../Postcard/Description.svelte';
 	import type { ArtPiece } from '../util/art.ts';
+	import { useLibraryConfig } from '../util/phosart_config.svelte.ts';
 
 	interface Props {
 		piece: ArtPiece;
@@ -14,6 +15,8 @@
 	}
 
 	let { piece, nameInHeader }: Props = $props();
+
+	let config = useLibraryConfig();
 
 	let loading = $state(true);
 	let showingDescription = $state(false);
@@ -40,13 +43,13 @@
 </div>
 
 <div class="headline-container">
-	<Headline {piece} bind:showingDescription showName={nameInHeader} />
+	<Headline {piece} bind:showingDescription showName={!config.modal?.hideNames && nameInHeader} />
 </div>
 <div class="description-container">
 	<Description
 		{piece}
 		bind:visible={showingDescription}
-		showName={!nameInHeader}
+		showName={!config.modal?.hideNames && !nameInHeader}
 		{selectedAlt}
 		onselectalt={(i) => (selectedAlt = i ?? null)}
 	/>

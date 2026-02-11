@@ -39,7 +39,7 @@ export interface LibraryConfig {
 		DefaultCardComponent?: NonNullable<ComponentProps<typeof FullGallery>['CardComponent']> | null;
 		DefaultPieceComponent?: NonNullable<ComponentProps<typeof Gallery>['PieceComponent']> | null;
 	};
-	modal?: { chipOptionsByType?: ChipOptionsByType | null };
+	modal?: { chipOptionsByType?: ChipOptionsByType | null; hideNames?: boolean };
 	defaultTransformSrc?: (src: string) => string;
 	getPage?: () => string;
 	origin?: string;
