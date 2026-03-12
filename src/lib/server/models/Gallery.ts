@@ -37,6 +37,7 @@ function ArtPiece<T extends z.ZodTypeAny>(imageType: T) {
 		tags: z.array(z.string()).default([]),
 		alt: z.string(),
 		description: z.string().optional(),
+		alts_display: z.literal(['alternatives', 'comic_panels']).optional(),
 		alts: z
 			.array(
 				z.object({
