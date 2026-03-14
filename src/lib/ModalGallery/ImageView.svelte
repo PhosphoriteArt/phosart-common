@@ -58,6 +58,7 @@
 		showName={!config.modal?.hideNames && !nameInHeader}
 		{selectedAlt}
 		onselectalt={(i) => (selectedAlt = i ?? null)}
+		hideAlts={piece.alts_display === 'comic_panels'}
 	/>
 </div>
 

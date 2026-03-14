@@ -15,6 +15,7 @@
 		showName: boolean;
 		selectedAlt: number | null;
 		onselectalt?: (index: number | null) => void;
+		hideAlts?: boolean;
 	}
 
 	let {
@@ -22,7 +23,8 @@
 		visible = $bindable(),
 		showName,
 		selectedAlt,
-		onselectalt = undefined
+		onselectalt = undefined,
+		hideAlts
 	}: Props = $props();
 
 	const characters = useCharacters();
@@ -51,7 +53,7 @@
 			)}
 		</div>
 
-		{#if piece.alts && Object.keys(piece.alts).length > 0}
+		{#if piece.alts && Object.keys(piece.alts).length > 0 && !hideAlts}
 			<div style="font-size: 0.7em; line-height: 1.2em; margin-bottom: 1rem" class="tags">
 				This piece as multiple versions:
 				{#if selectedAlt !== null}

@@ -99,7 +99,7 @@
 					}}
 					role="button"
 					tabindex={-1}
-					style="width: {w}px; height: {h}px"
+					style="width: {w}px; height: {h}px;{isComic ? ' border-radius: 12px 12px 0 0;' : ''}"
 				>
 					<ImageView {piece} {nameInHeader}>
 						{#snippet display(image, onloaded)}
@@ -116,7 +116,7 @@
 					</ImageView>
 				</div>
 				{#if isComic && piece.alts}
-					{#each piece.alts as alt (JSON.stringify(alt))}
+					{#each piece.alts as alt, i (JSON.stringify(alt))}
 						<div
 							class="bounded-div"
 							onclick={(e) => {
@@ -129,9 +129,11 @@
 							}}
 							role="button"
 							tabindex={-1}
-							style="width: {width(alt.image)}px; height: {height(alt.image)}px"
+							style="width: {width(alt.image)}px; height: {height(
+								alt.image
+							)}px; border-radius: {i === piece.alts.length - 1 ? '0 0 12px 12px' : '0px'};"
 						>
-							<div class="image-container" style="top: 0;">
+							<div class="image-container" style="top: 0; ">
 								<Image video={alt.video?.full} controls picture={alt.image.full} alt={alt.alt} />
 							</div>
 						</div>
