@@ -131,7 +131,7 @@
 							tabindex={-1}
 							style="width: {width(alt.image)}px; height: {height(alt.image)}px"
 						>
-							<div class="image-container">
+							<div class="image-container" style="top: 0;">
 								<Image video={alt.video?.full} controls picture={alt.image.full} alt={alt.alt} />
 							</div>
 						</div>
