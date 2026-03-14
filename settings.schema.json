@@ -103,6 +103,17 @@
 						},
 						"required": ["type"],
 						"additionalProperties": false
+					},
+					{
+						"type": "object",
+						"properties": {
+							"type": {
+								"type": "string",
+								"const": "boolean"
+							}
+						},
+						"required": ["type"],
+						"additionalProperties": false
 					}
 				]
 			}

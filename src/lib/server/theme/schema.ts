@@ -27,6 +27,7 @@ const ZMultiSelectionOption = z.object({
 	multi: z.literal(true)
 });
 const ZStringOption = z.object({ type: z.literal('string') });
+const ZBoolOption = z.object({ type: z.literal('boolean') });
 const ZTagsOption = z.object({ type: z.literal('tag-list') });
 const ZStringList = z.object({ type: z.literal('string-list') });
 export const ZThemeSettingsSchema = z.record(
@@ -37,7 +38,8 @@ export const ZThemeSettingsSchema = z.record(
 		ZMultiSelectionOption,
 		ZTagsOption,
 		ZStringList,
-		ZStringOption
+		ZStringOption,
+		ZBoolOption
 	])
 );
 
@@ -45,7 +47,8 @@ export type ThemeSettingsSchema = z.infer<typeof ZThemeSettingsSchema>;
 
 export const builtinSettings = {
 	defaultArtist: { type: 'string' },
-	websiteMode: { type: 'selection', options: ['static', 'vercel'] }
+	websiteMode: { type: 'selection', options: ['static', 'vercel'] },
+	supportsComics: { type: 'boolean' }
 } as const satisfies ThemeSettingsSchema;
 export type BuiltinSettings = typeof builtinSettings;
 
@@ -62,7 +65,9 @@ type MaterializedOptionFor<T extends ThemeSettingsSchema[string]> =
 						? Array<string>
 						: T extends z.infer<typeof ZStringOption>
 							? string
-							: never;
+							: T extends z.infer<typeof ZBoolOption>
+								? boolean | undefined
+								: never;
 
 export type SettingsFor<T extends ThemeSettingsSchema> = {
 	[K in keyof T]: MaterializedOptionFor<T[K]>;
