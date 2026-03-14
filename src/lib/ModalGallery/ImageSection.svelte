@@ -1,9 +1,10 @@
 <script lang="ts">
 	import '@fortawesome/fontawesome-free/css/all.min.css';
 
-	import type { ArtPiece } from '../util/art.ts';
+	import type { ArtPiece, Picture } from '../util/art.ts';
 	import ImageView from './ImageView.svelte';
 	import { useLibraryConfig } from '../util/phosart_config.svelte.ts';
+	import Image from '$lib/Image.svelte';
 
 	interface Props {
 		piece: ArtPiece;
@@ -22,22 +23,41 @@
 		onprev();
 	}
 
+	let infoHeight = $derived(
+		parseInt(getComputedStyle(document.documentElement).getPropertyValue('--info-height') ?? '100')
+	);
+
 	let containerWidth: number = $state(0);
 	let containerHeight: number = $state(0);
-	let containerHeightLessInfo = $derived(Math.max(0, containerHeight - 50));
+	let containerHeightLessInfo = $derived(Math.max(0, containerHeight - infoHeight));
+	let isComic = $derived(piece.alts_display === 'comic_panels');
+	let bounded: HTMLDivElement | null = $state(null);
 
-	let scaleByHeight = $derived(
-		containerWidth / containerHeightLessInfo >
-			piece.image.full.fallback.w / piece.image.full.fallback.h
-	);
-	let scalingFactor: number = $derived(
-		scaleByHeight
-			? containerHeightLessInfo / piece.image.full.fallback.h
-			: containerWidth / piece.image.full.fallback.w
-	);
+	function scale(image: Picture) {
+		const scaleByHeight =
+			!isComic &&
+			containerWidth / containerHeightLessInfo > image.full.fallback.w / image.full.fallback.h;
+		const scalingFactor: number = scaleByHeight
+			? containerHeightLessInfo / image.full.fallback.h
+			: containerWidth / image.full.fallback.w;
 
-	let w = $derived(piece.image.full.fallback.w * scalingFactor);
-	let h = $derived(piece.image.full.fallback.h * scalingFactor + 50);
+		return scalingFactor;
+	}
+
+	function width(image: Picture) {
+		return image.full.fallback.w * scale(image);
+	}
+
+	function height(image: Picture) {
+		return image.full.fallback.h * scale(image);
+	}
+
+	function scrollDown() {
+		bounded?.scrollBy({ behavior: 'smooth', top: containerHeight });
+	}
+
+	let w = $derived(width(piece.image));
+	let h = $derived(height(piece.image) + 50);
 
 	let config = useLibraryConfig();
 
@@ -56,17 +76,65 @@
 		></div>
 	</div>
 
-	<div class="main-container">
-		<div class="bounding-div" bind:clientHeight={containerHeight} bind:clientWidth={containerWidth}>
-			<div
-				class="bounded-div"
-				onclick={(e) => e.stopPropagation()}
-				onkeypress={(e) => e.stopPropagation()}
-				role="button"
-				tabindex={-1}
-				style="width: {w}px; height: {h}px"
-			>
-				<ImageView {piece} {nameInHeader} />
+	<div class="main-container" style={isComic ? 'overflow: visible' : ''}>
+		<div
+			class="bounding-div"
+			style={isComic ? 'overflow-y: scroll; align-items: flex-start; z-index: 100' : ''}
+			bind:clientHeight={containerHeight}
+			bind:clientWidth={containerWidth}
+			bind:this={bounded}
+		>
+			<div class="flex flex-col">
+				<div
+					class="bounded-div"
+					onclick={(e) => {
+						e.stopPropagation();
+						scrollDown();
+					}}
+					onkeypress={(e) => {
+						e.stopPropagation();
+						scrollDown();
+					}}
+					role="button"
+					tabindex={-1}
+					style="width: {w}px; height: {h}px"
+				>
+					<ImageView {piece} {nameInHeader}>
+						{#snippet display(image, onloaded)}
+							<div class="image-container">
+								<Image
+									video={image.video?.full}
+									controls
+									picture={image.image.full}
+									alt={image.alt}
+									{onloaded}
+								/>
+							</div>
+						{/snippet}
+					</ImageView>
+				</div>
+				{#if isComic && piece.alts}
+					{#each piece.alts as alt (JSON.stringify(alt))}
+						<div
+							class="bounded-div"
+							onclick={(e) => {
+								e.stopPropagation();
+								scrollDown();
+							}}
+							onkeypress={(e) => {
+								e.stopPropagation();
+								scrollDown();
+							}}
+							role="button"
+							tabindex={-1}
+							style="width: {width(alt.image)}px; height: {height(alt.image)}px"
+						>
+							<div class="image-container">
+								<Image video={alt.video?.full} controls picture={alt.image.full} alt={alt.alt} />
+							</div>
+						</div>
+					{/each}
+				{/if}
 			</div>
 		</div>
 	</div>
@@ -84,16 +152,7 @@
 </div>
 
 <style>
-	:global(:root) {
-		--info-height: 50px;
-		--carousel-height: 100px;
-	}
-
 	@media only screen and (max-width: 800px) {
-		:global(:root) {
-			--info-height: 50px;
-			--carousel-height: 75px;
-		}
 		.nav-container.nav-container {
 			width: 0;
 		}
@@ -105,10 +164,10 @@
 		justify-content: center;
 		align-items: center;
 		overflow: visible;
-		max-height: calc(100% - 50px - var(--carousel-height));
+		max-height: calc(100% - var(--carousel-height));
 		position: relative;
 		height: 100%;
-		padding: 2rem;
+		padding: 1rem;
 	}
 	.nav-container {
 		color: white;
@@ -155,5 +214,13 @@
 		border-radius: 12px;
 		display: flex;
 		position: relative;
+	}
+
+	.image-container {
+		position: absolute;
+		top: var(--info-height);
+		bottom: 0;
+		left: 0;
+		right: 0;
 	}
 </style>

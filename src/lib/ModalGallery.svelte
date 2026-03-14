@@ -45,6 +45,10 @@
 
 	const isGalleryOpen = $state(useIsModelGalleryOpen());
 
+	const currentIsComic = $derived(
+		typeof selected === 'number' ? pieces[selected]?.alts_display === 'comic_panels' : false
+	);
+
 	onMount(() => {
 		const handler = (e: KeyboardEvent) => {
 			if (e.code === 'ArrowLeft' && selected !== null) {
@@ -57,16 +61,15 @@
 		const hashchange = (hce: { oldURL?: string; newURL: string }) => {
 			const hash = new URL(hce.newURL).hash.replace(/^#/, '');
 			if (browser) {
-				console.log('H ->', hash);
-				const foundSelected = pieces.findIndex((piece) => piece.slug === hash);
+				const foundSelected = pieces.findIndex((piece) => piece.slug === decodeURIComponent(hash));
 				if (!isAnyModelGalleryOpen()) {
 					if (foundSelected !== -1) {
 						selected = foundSelected;
 					}
 				} else if (isGalleryOpen.open) {
-					if (!hash || hash == '#') {
+					if (!hash || hash == '#' || foundSelected === -1) {
 						selected = null;
-					} else if (foundSelected !== -1) {
+					} else {
 						selected = foundSelected;
 					}
 				}
@@ -90,13 +93,12 @@
 		if (isAnyModelGalleryOpen() === false && window.location.hash) {
 			window.location.hash = '##';
 		} else if (selected !== null && pieces[selected]) {
-			console.log('H <-', pieces[selected].slug);
 			window.location.hash = '#' + encodeURIComponent(pieces[selected].slug);
 		}
 	}
 
 	$effect.pre(() => {
-		isGalleryOpen.open = selected !== null;
+		isGalleryOpen.open = selected !== null && !!pieces[selected];
 	});
 	$effect.pre(() => {
 		if (hashUpdateReady) {
@@ -105,8 +107,8 @@
 	});
 </script>
 
-<Modal open={selected !== null} onclose={() => (selected = null)}>
-	<div class="gallery-container">
+<Modal open={selected !== null && !!pieces[selected]} onclose={() => (selected = null)}>
+	<div class="gallery-container" style={currentIsComic ? '--carousel-height: 25px' : ''}>
 		<div
 			role="button"
 			tabindex={-1}
@@ -121,7 +123,7 @@
 		></div>
 		<div style="flex-grow: 1"></div>
 
-		{#if selected !== null}
+		{#if selected !== null && !!pieces[selected]}
 			<HighResContext>
 				<ImageSection
 					piece={pieces[selected]}
@@ -139,6 +141,18 @@
 </Modal>
 
 <style>
+	@media only screen and (max-width: 800px) {
+		:global(:root) {
+			--info-height: 50px;
+			--carousel-height: 75px;
+		}
+	}
+
+	:global(:root) {
+		--info-height: 50px;
+		--carousel-height: 50px;
+	}
+
 	.gallery-container {
 		display: flex;
 		flex-direction: column;

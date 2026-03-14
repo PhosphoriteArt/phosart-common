@@ -1,20 +1,22 @@
 <script lang="ts">
 	import { run } from 'svelte/legacy';
 
-	import Image from '../Image.svelte';
-
 	import Spinner from './Spinner.svelte';
 	import Headline from '../Postcard/Headline.svelte';
 	import Description from '../Postcard/Description.svelte';
 	import type { ArtPiece } from '../util/art.ts';
 	import { useLibraryConfig } from '../util/phosart_config.svelte.ts';
+	import type { Snippet } from 'svelte';
 
 	interface Props {
 		piece: ArtPiece;
 		nameInHeader: boolean;
+		display: Snippet<
+			[image: ArtPiece | NonNullable<ArtPiece['alts']>[number], onloaded: () => void]
+		>;
 	}
 
-	let { piece, nameInHeader }: Props = $props();
+	let { piece, nameInHeader, display }: Props = $props();
 
 	let config = useLibraryConfig();
 
@@ -32,15 +34,7 @@
 
 <Spinner {loading} />
 
-<div class="image-container">
-	<Image
-		video={image.video?.full}
-		controls
-		picture={image.image.full}
-		alt={image.alt}
-		onloaded={() => (loading = false)}
-	/>
-</div>
+{@render display(image, () => (loading = false))}
 
 <div class="headline-container">
 	<Headline {piece} bind:showingDescription showName={!config.modal?.hideNames && nameInHeader} />
@@ -56,13 +50,6 @@
 </div>
 
 <style lang="postcss">
-	.image-container {
-		position: absolute;
-		top: var(--info-height);
-		bottom: 0;
-		left: 0;
-		right: 0;
-	}
 	.description-container {
 		position: absolute;
 		top: var(--info-height);
