@@ -53,6 +53,8 @@
 	}
 
 	function scrollDown() {
+		if (!isComic) return;
+
 		bounded?.scrollBy({ behavior: 'smooth', top: containerHeight });
 	}
 

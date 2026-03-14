@@ -36,10 +36,22 @@
 
 {@render display(image, () => (loading = false))}
 
-<div class="headline-container">
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+<div
+	class="headline-container"
+	onclick={(e) => e.stopPropagation()}
+	onkeypress={(e) => e.stopPropagation()}
+	role="contentinfo"
+>
 	<Headline {piece} bind:showingDescription showName={!config.modal?.hideNames && nameInHeader} />
 </div>
-<div class="description-container">
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+<div
+	class="description-container"
+	onclick={(e) => e.stopPropagation()}
+	onkeypress={(e) => e.stopPropagation()}
+	role="contentinfo"
+>
 	<Description
 		{piece}
 		bind:visible={showingDescription}
