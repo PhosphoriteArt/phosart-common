@@ -107,7 +107,7 @@
 			}
 			return;
 		}
-		if (Math.abs(dy) > 200 || Math.abs(velocity) < 200) {
+		if (Math.abs(dy) > 50 || Math.abs(dx) < window.screenLeft / 5 || Math.abs(velocity) < 200) {
 			return;
 		}
 

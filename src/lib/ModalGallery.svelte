@@ -8,7 +8,16 @@
 		modelGalleryOpens.push(false);
 		return {
 			set open(isOpen: boolean) {
+				const wasOpen = isAnyModelGalleryOpen();
 				modelGalleryOpens[idx] = isOpen;
+				const nowOpen = isAnyModelGalleryOpen();
+				if (
+					wasOpen !== nowOpen &&
+					typeof window !== 'undefined' &&
+					typeof document !== 'undefined'
+				) {
+					document.body.style.overflow = isOpen ? 'hidden' : 'auto';
+				}
 			},
 			get open() {
 				return modelGalleryOpens[idx];
