@@ -41,6 +41,8 @@
 	class="headline-container"
 	onclick={(e) => e.stopPropagation()}
 	onkeypress={(e) => e.stopPropagation()}
+	onpointerdown={(e) => e.stopPropagation()}
+	onpointerup={(e) => e.stopPropagation()}
 	role="contentinfo"
 >
 	<Headline {piece} bind:showingDescription showName={!config.modal?.hideNames && nameInHeader} />
@@ -50,6 +52,8 @@
 	class="description-container"
 	onclick={(e) => e.stopPropagation()}
 	onkeypress={(e) => e.stopPropagation()}
+	onpointerdown={(e) => e.stopPropagation()}
+	onpointerup={(e) => e.stopPropagation()}
 	role="contentinfo"
 >
 	<Description

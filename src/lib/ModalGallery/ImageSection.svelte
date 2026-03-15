@@ -53,9 +53,15 @@
 	}
 
 	function scrollDown() {
-		if (!isComic) return;
+		if (!isComic || !bounded) return;
 
-		bounded?.scrollBy({ behavior: 'smooth', top: containerHeight });
+		bounded.scrollBy({
+			behavior: 'smooth',
+			top: Math.min(
+				bounded.scrollHeight - bounded.clientHeight - bounded.scrollTop,
+				(containerHeight * 2) / 3
+			)
+		});
 	}
 
 	let w = $derived(width(piece.image));
@@ -64,6 +70,53 @@
 	let config = useLibraryConfig();
 
 	let nameInHeader = $derived(!config.modal?.hideNames && w > 500);
+	let pointerStartPos: [x: number, y: number] = $state([0, 0]);
+	let pointerEndPos: [x: number, y: number] = $state([0, 0]);
+	let pointerStartTime = $state(0);
+
+	function onPointerDown(e: PointerEvent) {
+		e.stopPropagation();
+
+		pointerStartPos = [e.screenX, e.screenY];
+		pointerStartTime = Date.now();
+	}
+	function onPointerMove(e: PointerEvent) {
+		pointerEndPos = [e.screenX, e.screenY];
+	}
+	function onPointerUp(e: PointerEvent) {
+		e.stopPropagation();
+
+		if (pointerStartTime === 0) {
+			return;
+		}
+
+		const [sx, sy] = pointerStartPos;
+		const [ex, ey] = [e.screenX || pointerEndPos[0], e.screenY || pointerEndPos[1]];
+		const [dx, dy] = [ex - sx, ey - sy];
+
+		const isCancel = e.screenX === 0 && e.screenY === 0;
+
+		const pointerDownTime = Date.now() - pointerStartTime;
+		pointerStartTime = 0;
+		// pixels per second
+		const velocity = (dx / pointerDownTime) * 1000;
+
+		if (Math.abs(velocity) < 50) {
+			if (!isCancel) {
+				scrollDown();
+			}
+			return;
+		}
+		if (Math.abs(dy) > 200 || Math.abs(velocity) < 200) {
+			return;
+		}
+
+		if (velocity > 0) {
+			onprev();
+		} else {
+			onnext();
+		}
+	}
 </script>
 
 <div class="image-section">
@@ -78,9 +131,17 @@
 		></div>
 	</div>
 
-	<div class="main-container" style={isComic ? 'overflow: visible' : ''}>
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div
+		class="main-container overscroll-contain"
+		ondragstartcapture={(e) => e.preventDefault()}
+		onpointerdown={onPointerDown}
+		onpointerup={onPointerUp}
+		onpointercancel={onPointerUp}
+		onpointermove={onPointerMove}
+	>
 		<div
-			class="bounding-div"
+			class="bounding-div overscroll-contain"
 			style={isComic ? 'overflow-y: scroll; align-items: flex-start; z-index: 100' : ''}
 			bind:clientHeight={containerHeight}
 			bind:clientWidth={containerWidth}
@@ -89,13 +150,12 @@
 			<div class="flex flex-col">
 				<div
 					class="bounded-div"
-					onclick={(e) => {
-						e.stopPropagation();
-						scrollDown();
-					}}
 					onkeypress={(e) => {
 						e.stopPropagation();
 						scrollDown();
+					}}
+					onclick={(e) => {
+						e.stopPropagation();
 					}}
 					role="button"
 					tabindex={-1}
@@ -121,7 +181,6 @@
 							class="bounded-div"
 							onclick={(e) => {
 								e.stopPropagation();
-								scrollDown();
 							}}
 							onkeypress={(e) => {
 								e.stopPropagation();
@@ -167,7 +226,7 @@
 		flex-direction: row;
 		justify-content: center;
 		align-items: center;
-		overflow: visible;
+		overflow: hidden;
 		max-height: calc(100% - var(--carousel-height));
 		position: relative;
 		height: 100%;

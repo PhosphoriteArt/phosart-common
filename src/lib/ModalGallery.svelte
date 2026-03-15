@@ -108,7 +108,10 @@
 </script>
 
 <Modal open={selected !== null && !!pieces[selected]} onclose={() => (selected = null)}>
-	<div class="gallery-container" style={currentIsComic ? '--carousel-height: 25px' : ''}>
+	<div
+		class="gallery-container overscroll-contain"
+		style={currentIsComic ? '--carousel-height: 25px' : ''}
+	>
 		<div
 			role="button"
 			tabindex={-1}
