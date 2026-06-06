@@ -27,12 +27,16 @@ const ZMultiSelectionOption = z.object({
 	multi: z.literal(true)
 });
 const ZStringOption = z.object({ type: z.literal('string') });
+const ZBigStringOption = z.object({
+	type: z.union([z.literal('textbox'), z.literal('json'), z.literal('markdown')])
+});
 const ZBoolOption = z.object({ type: z.literal('boolean') });
 const ZTagsOption = z.object({ type: z.literal('tag-list') });
 const ZStringList = z.object({ type: z.literal('string-list') });
 export const ZThemeSettingsSchema = z.record(
 	z.string(),
 	z.union([
+		ZBigStringOption,
 		ZColorOption,
 		ZSelectionOption,
 		ZMultiSelectionOption,
@@ -64,9 +68,11 @@ type MaterializedOptionFor<T extends ThemeSettingsSchema[string]> =
 						? Array<string>
 						: T extends z.infer<typeof ZStringOption>
 							? string
-							: T extends z.infer<typeof ZBoolOption>
-								? boolean | undefined
-								: never;
+							: T extends z.infer<typeof ZBigStringOption>
+								? string
+								: T extends z.infer<typeof ZBoolOption>
+									? boolean | undefined
+									: never;
 
 export type SettingsFor<T extends ThemeSettingsSchema> = {
 	[K in keyof T]: MaterializedOptionFor<T[K]>;
@@ -116,7 +122,13 @@ async function writeGeneratedSchema<T extends ThemeSettingsSchema>(schema: T) {
 				break;
 			}
 			case 'string':
+			case 'json':
+			case 'markdown':
+			case 'textbox':
 				ts += `\n  "${escape(k)}": string;`;
+				break;
+			case 'boolean':
+				ts += `\n  "${escape(k)}": boolean;`;
 				break;
 			case 'string-list':
 			case 'tag-list':
