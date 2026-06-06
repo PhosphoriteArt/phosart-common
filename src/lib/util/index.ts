@@ -34,3 +34,5 @@ export {
 } from './util.ts';
 export { asTree, pathView } from './tree.ts';
 export type { FolderElement, GalleryElement, GalleryTree, TreeElement } from './tree.ts';
+
+export { nsfwBlur, nsfwBlurStyle, nsfwConsented, nsfwRedact } from './nsfw_helper.svelte.ts';

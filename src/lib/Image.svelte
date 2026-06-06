@@ -3,6 +3,7 @@
 	import { untrack } from 'svelte';
 	import { isHighRes } from './HighResContext.svelte';
 	import { useLibraryConfig } from './util/phosart_config.svelte.ts';
+	import { nsfwBlur } from './util/nsfw_helper.svelte.ts';
 
 	interface Props {
 		picture: ImageModel;
@@ -13,11 +14,13 @@
 		onloaded?: () => void;
 		loading?: boolean;
 		transformSrc?: (src: string) => string;
+		nsfw?: boolean;
 	}
 
 	let {
 		picture,
 		alt,
+		nsfw,
 		onloaded = undefined,
 		video = undefined,
 		controls = false,
@@ -102,10 +105,12 @@
 	}
 </script>
 
-{#each [{ src, video }] as pic (JSON.stringify(pic))}
+{#key JSON.stringify({ src, video })}
 	{#if video}
 		<video
-			style="background: {background}; aspect-ratio: {src.fallback.w} / {src.fallback.h};"
+			style="background: {background}; aspect-ratio: {src.fallback.w} / {src.fallback.h}; {nsfwBlur(
+				nsfw
+			)}"
 			muted
 			autoplay
 			{controls}
@@ -118,7 +123,11 @@
 			<source src={transformSrc(video)} type="video/mp4" />
 		</video>
 	{:else}
-		<picture style="background: {background}; aspect-ratio: {src.fallback.w} / {src.fallback.h};">
+		<picture
+			style="background: {background}; aspect-ratio: {src.fallback.w} / {src.fallback.h}; {nsfwBlur(
+				nsfw
+			)}"
+		>
 			{#each Object.entries(src.sources) as [format, images] (format)}
 				<source
 					srcset={images.map((img) => `${transformSrc(img.src)} ${img.w}w`).join(', ')}
@@ -140,7 +149,7 @@
 			/>
 		</picture>
 	{/if}
-{/each}
+{/key}
 
 <style>
 	picture,

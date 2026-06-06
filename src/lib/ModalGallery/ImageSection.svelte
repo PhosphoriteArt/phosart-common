@@ -169,6 +169,7 @@
 									controls
 									picture={image.image.full}
 									alt={image.alt}
+									nsfw={image.nsfw}
 									{onloaded}
 								/>
 							</div>

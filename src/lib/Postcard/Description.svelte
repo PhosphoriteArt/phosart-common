@@ -8,6 +8,7 @@
 	import Chip from './Chip.svelte';
 	import { useCharacters } from '../util/charactercontext.svelte.ts';
 	import { useArtists } from '../util/artistcontext.svelte.ts';
+	import { nsfwRedact } from '../util/nsfw_helper.svelte.ts';
 
 	interface Props {
 		piece: ArtPiece;
@@ -37,7 +38,7 @@
 			{#if showName}
 				<div style="margin-bottom: 0.5rem;">
 					<span style="border-bottom: 1px dashed #8886; font-style: italic;">
-						{piece.name}
+						{nsfwRedact(piece.name, piece.nsfw)}
 					</span>
 				</div>
 			{/if}
@@ -49,7 +50,10 @@
 		>
 			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
 			{@html markdown(
-				(selectedAlt && piece.alts?.[selectedAlt]?.description) || piece.description || ''
+				nsfwRedact(
+					(selectedAlt && piece.alts?.[selectedAlt]?.description) || piece.description || '',
+					piece.nsfw
+				)
 			)}
 		</div>
 

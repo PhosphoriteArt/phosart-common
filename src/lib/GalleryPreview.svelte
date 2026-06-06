@@ -19,21 +19,29 @@
 	{@const both = 'calc(var(--preview-size) / 2)'}
 	<div class="preview" style="--preview-size: {cssSize}">
 		<div style="height: {toph}; width: {topw}" class="imgcontainer" class:square={topw === toph}>
-			<div><Image alt={pieces[0].alt} picture={pieces[0].image.thumbnail} /></div>
+			<div>
+				<Image alt={pieces[0].alt} picture={pieces[0].image.thumbnail} nsfw={pieces[0].nsfw} />
+			</div>
 		</div>
 		{#if pieces[1]}
 			<div style="height: {toph}; width: {topw}" class="imgcontainer" class:square={topw === toph}>
-				<div><Image alt={pieces[1].alt} picture={pieces[1].image.thumbnail} /></div>
+				<div>
+					<Image alt={pieces[1].alt} picture={pieces[1].image.thumbnail} nsfw={pieces[0].nsfw} />
+				</div>
 			</div>
 		{/if}
 		{#if pieces[2]}
 			<div style="height: {both}; width: {botw}" class="imgcontainer" class:square={botw === both}>
-				<div><Image alt={pieces[2].alt} picture={pieces[2].image.thumbnail} /></div>
+				<div>
+					<Image alt={pieces[2].alt} picture={pieces[2].image.thumbnail} nsfw={pieces[0].nsfw} />
+				</div>
 			</div>
 		{/if}
 		{#if pieces[3]}
 			<div style="height: {both}; width: {botw}" class="imgcontainer" class:square={botw === both}>
-				<div><Image alt={pieces[3].alt} picture={pieces[3].image.thumbnail} /></div>
+				<div>
+					<Image alt={pieces[3].alt} picture={pieces[3].image.thumbnail} nsfw={pieces[0].nsfw} />
+				</div>
 			</div>
 		{/if}
 	</div>

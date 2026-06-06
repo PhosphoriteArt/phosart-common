@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { nsfwRedact } from '../util/nsfw_helper.svelte.ts';
 	import { normalizeArtist, type ArtPiece } from '../util/art.ts';
 	import { useArtists } from '../util/artistcontext.svelte.ts';
 	import ArtistLink from './ArtistLink.svelte';
@@ -25,7 +26,7 @@
 	<div style="display: flex">
 		{#if showName}
 			<div style="padding-right: 2rem" class="piece-name">
-				{piece.name}
+				{nsfwRedact(piece.name, piece.nsfw)}
 			</div>
 		{/if}
 		<div
