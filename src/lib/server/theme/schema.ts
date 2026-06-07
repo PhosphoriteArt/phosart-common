@@ -28,7 +28,7 @@ const ZMultiSelectionOption = z.object({
 });
 const ZStringOption = z.object({ type: z.literal('string') });
 const ZBigStringOption = z.object({
-	type: z.union([z.literal('textbox'), z.literal('json'), z.literal('markdown')])
+	type: z.union([z.literal('textbox'), z.literal('json'), z.literal('markdown'), z.literal('yaml')])
 });
 const ZBoolOption = z.object({ type: z.literal('boolean') });
 const ZTagsOption = z.object({ type: z.literal('tag-list') });
