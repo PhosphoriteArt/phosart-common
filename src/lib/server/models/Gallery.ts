@@ -54,7 +54,8 @@ function ArtPiece<T extends z.ZodTypeAny>(imageType: T) {
 		video: Video.optional(),
 		slug: z.string(),
 		deindexed: z.boolean().optional(),
-		nsfw: z.boolean().optional()
+		nsfw: z.boolean().optional(),
+		sort_key: z.string().optional()
 	});
 }
 

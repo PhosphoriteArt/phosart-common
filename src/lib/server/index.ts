@@ -8,7 +8,7 @@ export {
 	getAllCharacters
 } from './character.ts';
 export { $DATA as $ART, $PUBLIC, $ROOT } from './directories.ts';
-export { filter } from './filter.ts';
+export { filter, defaultPieceSort } from './filter.ts';
 export {
 	type GalleryCache,
 	type RawGalleryCache,

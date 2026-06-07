@@ -67,5 +67,35 @@ export function filter(
 	if (!sorted) {
 		return results;
 	}
-	return results.sort((a, b) => b.date.getTime() - a.date.getTime());
+	return results.sort(defaultPieceSort);
+}
+
+export function defaultPieceSort(a: ArtPiece, b: ArtPiece) {
+	if (a.sort_key && !b.sort_key) {
+		return -1;
+	} else if (b.sort_key && !a.sort_key) {
+		return 1;
+	} else if (b.sort_key && a.sort_key) {
+		let aNum: number | null = null;
+		let bNum: number | null = null;
+		aNum = Number(a.sort_key);
+		if (!Number.isFinite(aNum)) {
+			aNum = null;
+		}
+		bNum = Number(b.sort_key);
+		if (!Number.isFinite(bNum)) {
+			bNum = null;
+		}
+
+		if (aNum !== null && bNum === null) {
+			return -1;
+		} else if (bNum !== null && aNum === null) {
+			return 1;
+		} else if (bNum !== null && aNum !== null) {
+			return bNum - aNum;
+		}
+
+		return a.sort_key.localeCompare(b.sort_key);
+	}
+	return b.date.getTime() - a.date.getTime();
 }
