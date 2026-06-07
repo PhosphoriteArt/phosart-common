@@ -92,7 +92,7 @@ export function defaultPieceSort(a: ArtPiece, b: ArtPiece) {
 		} else if (bNum !== null && aNum === null) {
 			return 1;
 		} else if (bNum !== null && aNum !== null) {
-			return bNum - aNum;
+			return aNum - bNum;
 		}
 
 		return a.sort_key.localeCompare(b.sort_key);
