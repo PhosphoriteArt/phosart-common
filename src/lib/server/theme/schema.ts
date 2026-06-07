@@ -123,6 +123,7 @@ async function writeGeneratedSchema<T extends ThemeSettingsSchema>(schema: T) {
 			}
 			case 'string':
 			case 'json':
+			case 'yaml':
 			case 'markdown':
 			case 'textbox':
 				ts += `\n  "${escape(k)}": string;`;
