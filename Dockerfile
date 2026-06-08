@@ -1,4 +1,4 @@
-FROM node:24-bullseye AS base
+FROM node:24-alpine AS base
 WORKDIR /app
 
 ENTRYPOINT [ ]
@@ -8,6 +8,7 @@ RUN npm install -g pnpm
 FROM base AS builder
 
 COPY ./package.json ./pnpm-lock.yaml ./pnpm-workspace.yaml /app/
+RUN corepack enable
 RUN pnpm install --frozen
 
 FROM builder AS sourced
