@@ -14,16 +14,15 @@
 		display: Snippet<
 			[image: ArtPiece | NonNullable<ArtPiece['alts']>[number], onloaded: () => void]
 		>;
+		selectedAlt?: number | null;
 	}
 
-	let { piece, nameInHeader, display }: Props = $props();
+	let { piece, nameInHeader, display, selectedAlt = $bindable(null) }: Props = $props();
 
 	let config = useLibraryConfig();
 
 	let loading = $state(true);
 	let showingDescription = $state(false);
-
-	let selectedAlt: number | null = $state(null);
 
 	let image = $derived(typeof selectedAlt === 'number' ? piece.alts![selectedAlt] : piece);
 

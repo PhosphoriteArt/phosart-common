@@ -27,19 +27,23 @@
 		parseInt(getComputedStyle(document.documentElement).getPropertyValue('--info-height') ?? '100')
 	);
 
+	let altWidth: number = $state(0);
 	let containerWidth: number = $state(0);
 	let containerHeight: number = $state(0);
 	let containerHeightLessInfo = $derived(Math.max(0, containerHeight - infoHeight));
+	let containerWidthLessAlt = $derived(containerWidth - altWidth);
 	let isComic = $derived(piece.alts_display === 'comic_panels');
 	let bounded: HTMLDivElement | null = $state(null);
+	let selectedAlt: number | null = $state(null);
 
 	function scale(image: Picture) {
 		const scaleByHeight =
 			!isComic &&
-			containerWidth / containerHeightLessInfo > image.full.fallback.w / image.full.fallback.h;
+			containerWidthLessAlt / containerHeightLessInfo >
+				image.full.fallback.w / image.full.fallback.h;
 		const scalingFactor: number = scaleByHeight
 			? containerHeightLessInfo / image.full.fallback.h
-			: containerWidth / image.full.fallback.w;
+			: containerWidthLessAlt / image.full.fallback.w;
 
 		return scalingFactor;
 	}
@@ -148,35 +152,101 @@
 			bind:this={bounded}
 		>
 			<div class="flex flex-col">
-				<div
-					class="bounded-div"
-					onkeypress={(e) => {
-						e.stopPropagation();
-						scrollDown();
-					}}
-					onclick={(e) => {
-						e.stopPropagation();
-					}}
-					role="button"
-					tabindex={-1}
-					style="width: {w}px; height: {h}px;{isComic ? ' border-radius: 12px 12px 0 0;' : ''}"
-				>
-					<ImageView {piece} {nameInHeader}>
-						{#snippet display(image, onloaded)}
-							<div class="image-container">
-								<Image
-									video={image.video?.full}
-									controls
-									picture={image.image.full}
-									alt={image.alt}
-									nsfw={image.nsfw}
-									{onloaded}
-								/>
-							</div>
-						{/snippet}
-					</ImageView>
+				<div class="flex">
+					<div
+						class="bounded-div"
+						onkeypress={(e) => {
+							e.stopPropagation();
+							scrollDown();
+						}}
+						onclick={(e) => {
+							e.stopPropagation();
+						}}
+						role="button"
+						tabindex={-1}
+						style="
+						z-index: 2; width: {w}px; height: {h}px;{isComic
+							? ' border-radius: 12px 12px 0 0;'
+							: piece.alts && piece.alts.length > 0
+								? ' border-radius: 12px 0 0 12px;'
+								: ''}"
+					>
+						<ImageView bind:selectedAlt {piece} {nameInHeader}>
+							{#snippet display(image, onloaded)}
+								<div class="image-container">
+									<Image
+										video={image.video?.full}
+										controls
+										picture={image.image.full}
+										alt={image.alt}
+										nsfw={image.nsfw}
+										{onloaded}
+									/>
+								</div>
+							{/snippet}
+						</ImageView>
+					</div>
+					{#if piece.alts && piece.alts.length > 0}
+						<div
+							bind:clientWidth={altWidth}
+							style="background-color: transparent; width:75px; position: relative"
+						>
+							{#each piece.alts as alt, i ('alt-' + JSON.stringify(alt))}
+								{@const isOriginal = i === selectedAlt}
+								{@const selPiece = isOriginal ? piece : alt}
+								{@const top = (i * h) / piece.alts.length}
+								{@const WRatio = 75 / selPiece.image.full.fallback.w}
+								{@const myH = selPiece.image.full.fallback.h * WRatio}
+
+								<div>
+									<button
+										onclick={(e) => {
+											e.stopPropagation();
+											selectedAlt = isOriginal ? null : i;
+										}}
+										tabindex={-1}
+										class="altcarry"
+										style="top: {top}px; width:75px; height: {h /
+											piece.alts.length}px; overflow:hidden; position: absolute; z-index: 1;"
+									>
+										<div
+											style="width: 75px; height: {Math.max(
+												myH,
+												h / piece.alts.length
+											)}px; min-height: {myH}px;  position:absolute; top:0;right:0;"
+										>
+											<div class="image-container objr" style="top: 0; object-fit: cover">
+												<Image
+													video={selPiece.video?.full}
+													controls
+													picture={selPiece.image.full}
+													alt={selPiece.alt}
+													loading={false}
+													nolqip
+												/>
+											</div>
+										</div>
+									</button>
+									<div
+										class="alt-tooltip"
+										style="z-index: 3; height: 2rem; text-overflow: elipsis; top: calc({top}px + 1rem);  color: white; padding: 0.5rem; position: absolute; left: -9rem; width: 8rem;  display: flex; justify-content: end; align-items: center;"
+									>
+										<div
+											style="background-color: #0009; border-radius: 0.25rem; padding: 0 0.25rem"
+										>
+											{#if isOriginal}
+												Back to Original Piece
+											{:else}
+												Alt: {alt.name}
+											{/if}
+										</div>
+									</div>
+								</div>
+							{/each}
+						</div>
+					{/if}
 				</div>
-				{#if isComic && piece.alts}
+				{#if isComic && piece.alts && piece.alts.length > 0}
 					{#each piece.alts as alt, i (JSON.stringify(alt))}
 						<div
 							class="bounded-div"
@@ -286,5 +356,31 @@
 		bottom: 0;
 		left: 0;
 		right: 0;
+	}
+
+	.objr :global(img) {
+		object-position: right center;
+		object-fit: cover;
+	}
+
+	.altcarry {
+		right: 1rem;
+		transition:
+			right 0.2s ease-in-out,
+			clip-path 0.2s ease-in-out;
+		clip-path: inset(0 0 0 16px);
+	}
+	.altcarry:hover {
+		right: 0rem;
+		clip-path: inset(0 0 0 0);
+	}
+
+	.altcarry:hover ~ .alt-tooltip {
+		opacity: 1;
+	}
+	.alt-tooltip {
+		opacity: 0;
+		user-select: none;
+		transition: opacity 0.2s ease-in-out;
 	}
 </style>
