@@ -15,6 +15,7 @@
 		loading?: boolean;
 		transformSrc?: (src: string) => string;
 		nsfw?: boolean;
+		lqipFit?: 'cover' | 'contain';
 	}
 
 	let {
@@ -26,7 +27,8 @@
 		controls = false,
 		nolqip = false,
 		loading = $bindable(true),
-		transformSrc: userTransformSrc
+		transformSrc: userTransformSrc,
+		lqipFit = 'contain'
 	}: Props = $props();
 
 	const config = useLibraryConfig();
@@ -43,7 +45,9 @@
 	let src = $derived(highRes ? onlyHighRes(picture) : no4K(picture));
 
 	let background = $derived(
-		!nolqip && src.lqip && showBackground ? `url(${src.lqip.src}) no-repeat center/contain` : 'none'
+		!nolqip && src.lqip && showBackground
+			? `url(${src.lqip.src}) no-repeat center/${lqipFit}`
+			: 'none'
 	);
 
 	$effect(() => {
