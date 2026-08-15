@@ -138,6 +138,7 @@
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
 		class="main-container overscroll-contain"
+		class:comic-mode={isComic}
 		ondragstartcapture={(e) => e.preventDefault()}
 		onpointerdown={onPointerDown}
 		onpointerup={onPointerUp}
@@ -290,7 +291,7 @@
 		.nav-container.nav-container {
 			width: 0;
 		}
-		.main-container.main-container {
+		.main-container.main-container.comic-mode {
 			max-width: 90vw;
 		}
 	}
@@ -326,6 +327,10 @@
 		color: white;
 	}
 
+	.main-container.comic-mode {
+		max-width: 50vw;
+	}
+
 	.main-container {
 		flex-grow: 1;
 		height: 100%;
@@ -334,7 +339,6 @@
 		justify-content: center;
 		align-items: center;
 		overflow: hidden;
-		max-width: 80vw;
 	}
 
 	.bounding-div {
