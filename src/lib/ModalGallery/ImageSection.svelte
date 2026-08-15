@@ -186,7 +186,7 @@
 							{/snippet}
 						</ImageView>
 					</div>
-					{#if piece.alts && piece.alts.length > 0}
+					{#if piece.alts && piece.alts.length > 0 && !isComic}
 						<div
 							bind:clientWidth={altWidth}
 							style="background-color: transparent; width:75px; position: relative"
@@ -290,6 +290,9 @@
 		.nav-container.nav-container {
 			width: 0;
 		}
+		.main-container.main-container {
+			max-width: 90vw;
+		}
 	}
 
 	.image-section {
@@ -331,6 +334,7 @@
 		justify-content: center;
 		align-items: center;
 		overflow: hidden;
+		max-width: 80vw;
 	}
 
 	.bounding-div {
