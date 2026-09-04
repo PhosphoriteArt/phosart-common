@@ -16,7 +16,7 @@ export function nsfwBlur(
 	imageType: 'full' | 'thumb' = 'thumb'
 ): string {
 	const didConsent = nsfwConsented.consented === 'all' || nsfwConsented.consented.has(sha256);
-	const shouldBlur = didConsent && (nsfwConsented.unblurThumbnails || imageType === 'full');
+	const shouldBlur = !didConsent || (!nsfwConsented.unblurThumbnails && imageType === 'thumb');
 	if (nsfw && shouldBlur) {
 		return nsfwBlurStyle;
 	}
