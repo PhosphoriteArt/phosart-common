@@ -5,7 +5,7 @@ export type ImageId = string;
 export const nsfwConsented = $state<{
 	unblurThumbnails: boolean;
 	unblurText: boolean;
-	consented: 'all' | SvelteSet<ImageId>;
+	consented: 'all' | SvelteSet<ImageId> | boolean;
 }>({ unblurThumbnails: false, consented: new SvelteSet(), unblurText: false });
 
 export const nsfwBlurStyle = 'filter: blur(200px); overflow: hidden;';
@@ -15,7 +15,10 @@ export function nsfwBlur(
 	sha256: ImageId = '.',
 	imageType: 'full' | 'thumb' = 'thumb'
 ): string {
-	const didConsent = nsfwConsented.consented === 'all' || nsfwConsented.consented.has(sha256);
+	const didConsent =
+		nsfwConsented.consented === 'all' ||
+		nsfwConsented.consented === true ||
+		(nsfwConsented.consented !== false && nsfwConsented.consented.has(sha256));
 	const shouldBlur = !didConsent || (!nsfwConsented.unblurThumbnails && imageType === 'thumb');
 	if (nsfw && shouldBlur) {
 		return nsfwBlurStyle;
