@@ -16,6 +16,7 @@
 		transformSrc?: (src: string) => string;
 		nsfw?: boolean;
 		lqipFit?: 'cover' | 'contain';
+		isThumb?: boolean;
 	}
 
 	let {
@@ -28,7 +29,8 @@
 		nolqip = false,
 		loading = $bindable(true),
 		transformSrc: userTransformSrc,
-		lqipFit = 'contain'
+		lqipFit = 'contain',
+		isThumb = true
 	}: Props = $props();
 
 	const config = useLibraryConfig();
@@ -113,7 +115,9 @@
 	{#if video}
 		<video
 			style="background: {background}; aspect-ratio: {src.fallback.w} / {src.fallback.h}; {nsfwBlur(
-				nsfw
+				nsfw,
+				picture.sha256,
+				isThumb ? 'thumb' : 'full'
 			)}"
 			muted
 			autoplay
@@ -129,7 +133,9 @@
 	{:else}
 		<picture
 			style="background: {background}; aspect-ratio: {src.fallback.w} / {src.fallback.h}; {nsfwBlur(
-				nsfw
+				nsfw,
+				picture.sha256,
+				isThumb ? 'thumb' : 'full'
 			)}"
 		>
 			{#each Object.entries(src.sources) as [format, images] (format)}

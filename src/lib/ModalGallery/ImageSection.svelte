@@ -182,6 +182,7 @@
 										alt={image.alt}
 										nsfw={image.nsfw}
 										{onloaded}
+										isThumb={false}
 									/>
 								</div>
 							{/snippet}
@@ -224,6 +225,7 @@
 													alt={selPiece.alt}
 													loading={false}
 													nolqip
+													isThumb
 												/>
 											</div>
 										</div>
@@ -265,7 +267,13 @@
 							)}px; border-radius: {i === piece.alts.length - 1 ? '0 0 12px 12px' : '0px'};"
 						>
 							<div class="image-container" style="top: 0; ">
-								<Image video={alt.video?.full} controls picture={alt.image.full} alt={alt.alt} />
+								<Image
+									video={alt.video?.full}
+									controls
+									picture={alt.image.full}
+									alt={alt.alt}
+									isThumb={false}
+								/>
 							</div>
 						</div>
 					{/each}

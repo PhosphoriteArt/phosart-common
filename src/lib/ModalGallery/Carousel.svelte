@@ -50,7 +50,12 @@
 					role="button"
 					tabindex={-1}
 				>
-					<Image picture={piece.image.thumbnail} alt={piece.alt} nsfw={piece.nsfw} />
+					<Image
+						picture={piece.image.thumbnail}
+						alt={piece.alt}
+						nsfw={piece.nsfw}
+						isThumb={false}
+					/>
 				</div>
 			{/each}
 		</div>
